@@ -2,10 +2,12 @@
  * @fileoverview Discovery router for StumbleClone.
  */
 
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 import { DiscoveryService } from '../../services/discovery_service.js';
+import { seedDefaultAssets, DEFAULT_SEED_ASSETS } from '../../bootstrap.js';
 import type { IStoragePort } from '../../db/storage_port.js';
-import { AuthenticatedRequest } from '../../middleware/auth.js';
+import type { AuthenticatedRequest } from '../../middleware/auth.js';
 
 /**
  * Creates the discovery router.
@@ -31,7 +33,8 @@ export function createDiscoveryRouter(discoveryService: DiscoveryService, storag
 
   router.get('/search', async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const query = req.query.q as string;
+      const queryParam = req.query.q as string | string[] | undefined;
+      const query = typeof queryParam === 'string' ? queryParam : undefined;
       if (!query) return res.status(400).json({ error: 'Missing query parameter' });
       const results = await storage.search_assets(query);
       res.json(results);
@@ -43,8 +46,9 @@ export function createDiscoveryRouter(discoveryService: DiscoveryService, storag
 
   router.get('/stumble', async (req: AuthenticatedRequest, res: Response) => {
     try {
-      const category = (req.query.category as string) || 'all';
-      const history = (req.query.history as string)?.split(',') || [];
+      const category = typeof req.query.category === 'string' ? req.query.category : 'all';
+      const historyParam = req.query.history as string | string[] | undefined;
+      const history = typeof historyParam === 'string' ? historyParam.split(',') : [];
       const userId = req.user_id;
       if (!userId) return res.status(401).json({ error: 'Unauthorized' });
       
@@ -122,7 +126,8 @@ export function createDiscoveryRouter(discoveryService: DiscoveryService, storag
     try {
       const userId = req.user_id;
       if (!userId) return res.status(401).json({ error: 'Unauthorized' });
-      await discoveryService.removeFavorite(userId, req.params.id);
+      const assetId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      await discoveryService.removeFavorite(userId, assetId);
       res.sendStatus(204);
     } catch (error: unknown) {
       res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
@@ -140,14 +145,8 @@ export function createDiscoveryRouter(discoveryService: DiscoveryService, storag
 
   router.post('/seed', async (_req: Request, res: Response) => {
     try {
-      const mock_data = [
-        { id: 't1', url: 'https://news.ycombinator.com', title: 'Hacker News', category: 'tech', source: 'HN', description: 'Tech' },
-        { id: 'a1', url: 'https://www.thisiscolossal.com', title: 'Colossal', category: 'art', source: 'Colossal', description: 'Art' },
-      ];
-      for (const item of mock_data) {
-        await storage.save_asset({ ...item, rating: 0, created_at: new Date() });
-      }
-      res.json({ message: 'Seeding complete', count: mock_data.length });
+      await seedDefaultAssets(storage);
+      res.json({ message: 'Seeding complete', count: DEFAULT_SEED_ASSETS.length });
     } catch (error: unknown) {
       res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }

@@ -3,7 +3,8 @@
  * Configures the Express app, dependency injection, and routes.
  */
 
-import express, { Express, Request, Response } from 'express';
+import express from 'express';
+import type { Express } from 'express';
 import cors from 'cors';
 import { settings } from './config/settings.js';
 import { SqliteAdapter } from './db/sqlite_adapter.js';
@@ -12,6 +13,7 @@ import { createDiscoveryRouter } from './api/v1/discovery_routes.js';
 import { createAuthRouter } from './api/v1/auth_routes.js';
 import { createHealthRouter } from './api/v1/health.js';
 import { authenticateJWT } from './middleware/auth.js';
+import { seedDefaultAssets } from './bootstrap.js';
 
 // Sources
 import { WikipediaSource } from './sources/wikipedia.js';
@@ -25,7 +27,7 @@ import { WikipediaImageSource } from './sources/wikipedia_image.js';
 import { NasaApodSource } from './sources/nasa_apod.js';
 import { ProductHuntSource } from './sources/producthunt.js';
 import { YoutubeSource } from './sources/youtube.js';
-import { ContentFetcher } from './sources/ContentFetcher.js';
+import type { ContentFetcher } from './sources/ContentFetcher.js';
 
 const app: Express = express();
 
@@ -33,7 +35,7 @@ app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
 // 1. Dependency Injection
-const storage = new SqliteAdapter(settings.DB_PATH);
+const storage = new SqliteAdapter(settings.dbPath);
 const sources: ContentFetcher[] = [
   new WikipediaSource(),
   new HackerNewsSource(),
@@ -63,7 +65,7 @@ async function bootstrap(): Promise<void> {
     const categories = await discoveryService.get_categories();
     if (categories.length === 0) {
       console.log('--- Bootstrap Seeding ---');
-      // TODO: Implement basic data seeding
+      await seedDefaultAssets(storage);
     }
   } catch (error) {
     console.error('Bootstrap failed:', error);
@@ -72,6 +74,6 @@ async function bootstrap(): Promise<void> {
 
 bootstrap();
 
-app.listen(settings.PORT, () => {
-  console.log(`[StumbleApp] running on port ${settings.PORT}`);
+app.listen(settings.port, () => {
+  console.log(`[StumbleApp] running on port ${settings.port}`);
 });

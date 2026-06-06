@@ -2,7 +2,8 @@
  * @fileoverview Authentication router for user registration and login.
  */
 
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
+import type { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';

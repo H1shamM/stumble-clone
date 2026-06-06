@@ -3,7 +3,14 @@
  */
 
 import type { StumbleAsset } from '../models/asset.js';
-import type { RatedItem } from './sqlite_adapter.js'; // Assuming this needs to be moved or exported properly
+
+/**
+ * Represents an item from a user's rating history.
+ */
+export interface RatedItem extends StumbleAsset {
+  rating_val: 'like' | 'dislike';
+  timestamp: Date;
+}
 
 /**
  * Interface for storage operations.
@@ -46,6 +53,13 @@ export interface IStoragePort {
   get_all_interests(): Promise<string[]>;
 
   /**
+   * Retrieves all assets by category.
+   * @param {string} category - Asset category to filter by.
+   * @returns {Promise<StumbleAsset[]>}
+   */
+  get_all_assets(category: string): Promise<StumbleAsset[]>;
+
+  /**
    * Retrieves all unique categories.
    * @returns {Promise<string[]>}
    */
@@ -82,6 +96,13 @@ export interface IStoragePort {
    * @returns {Promise<RatedItem[]>}
    */
   get_history(user_id: string, limit: number): Promise<RatedItem[]>;
+
+  /**
+   * Retrieves user preferences.
+   * @param {string} user_id - The user ID.
+   * @returns {Promise<{ type: string; name: string; score: number }[]>}
+   */
+  get_user_preferences(user_id: string): Promise<{ type: string; name: string; score: number }[]>;
 
   /**
    * Adds an asset to favorites.

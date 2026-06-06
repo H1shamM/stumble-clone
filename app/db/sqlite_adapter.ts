@@ -88,19 +88,6 @@ export class SqliteAdapter implements IStoragePort {
   /**
    * @inheritdoc
    */
-  async get_all_assets(category: string): Promise<StumbleAsset[]> {
-    let query = 'SELECT * FROM assets WHERE 1=1 ';
-    const params: string[] = [];
-
-    if (category !== 'all') {
-      query += 'AND category = ? ';
-      params.push(category);
-    }
-
-    const rows = this.db.prepare(query).all(...params) as StumbleAsset[];
-    return rows.map(r => this.map_row_to_asset(r));
-  }
-
   /**
    * @inheritdoc
    */
@@ -124,9 +111,64 @@ export class SqliteAdapter implements IStoragePort {
   /**
    * @inheritdoc
    */
+  async update_rating(id: string, delta: number): Promise<void> {
+    this.db.prepare('UPDATE assets SET rating = rating + ? WHERE id = ?').run(delta, id);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async get_all_assets(category: string): Promise<StumbleAsset[]> {
+    let query = 'SELECT * FROM assets WHERE 1=1 ';
+    const params: string[] = [];
+
+    if (category !== 'all') {
+      query += 'AND category = ? ';
+      params.push(category);
+    }
+
+    const rows = this.db.prepare(query).all(...params) as StumbleAsset[];
+    return rows.map(r => this.map_row_to_asset(r));
+  }
+
+  /**
+   * @inheritdoc
+   */
   async get_all_categories(): Promise<string[]> {
     const rows = this.db.prepare('SELECT DISTINCT category FROM assets').all() as { category: string }[];
     return rows.map(r => r.category);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async get_all_interests(): Promise<string[]> {
+    const rows = this.db.prepare('SELECT DISTINCT category FROM assets').all() as { category: string }[];
+    return rows.map(r => r.category);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async get_random_asset_by_interests(interests: string[], exclude_ids: string[]): Promise<StumbleAsset | null> {
+    const placeholders = exclude_ids.map(() => '?').join(', ');
+    let query = 'SELECT * FROM assets WHERE 1=1 ';
+    const params: Array<string | number> = [];
+
+    if (interests.length > 0) {
+      const interestPlaceholders = interests.map(() => '?').join(', ');
+      query += `AND category IN (${interestPlaceholders}) `;
+      params.push(...interests);
+    }
+
+    if (exclude_ids.length > 0) {
+      query += `AND id NOT IN (${placeholders}) `;
+      params.push(...exclude_ids);
+    }
+
+    query += 'ORDER BY RANDOM() LIMIT 1';
+    const row = this.db.prepare(query).get(...params) as StumbleAsset | undefined;
+    return row ? this.map_row_to_asset(row) : null;
   }
 
   /**
