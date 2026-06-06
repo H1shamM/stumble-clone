@@ -1,6 +1,0 @@
-nohup: ignoring input
-
-> app@1.0.0 start
-> tsx main.ts
-
-[StumbleApp] Professional Discovery Engine running on port 3000
