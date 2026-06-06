@@ -94,7 +94,7 @@ export function App() {
       if (iframeRef.current?.contentWindow?.document) {
         setIframeError(false);
       }
-    } catch (e) {
+    } catch {
       setBlockedState();
     }
   }, [clearIframeTimeout, setBlockedState]);

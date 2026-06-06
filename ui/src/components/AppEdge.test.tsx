@@ -1,7 +1,6 @@
-import { render, screen, fireEvent, waitFor, cleanup, within } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import App from './App';
-import * as AppCode from './App'; // Import to access helpers
 
 // Mock localStorage
 const localStorageMock = (() => {
