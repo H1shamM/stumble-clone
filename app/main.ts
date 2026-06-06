@@ -14,6 +14,8 @@ import { createAuthRouter } from './api/v1/auth_routes.js';
 import { createHealthRouter } from './api/v1/health.js';
 import { authenticateJWT } from './middleware/auth.js';
 import { seedDefaultAssets } from './bootstrap.js';
+import passport from 'passport';
+import { initPassport } from './config/passport.js';
 
 // Sources
 import { WikipediaSource } from './sources/wikipedia.js';
@@ -33,9 +35,11 @@ const app: Express = express();
 
 app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
+app.use(passport.initialize());
 
 // 1. Dependency Injection
 const storage = new SqliteAdapter(settings.dbPath);
+initPassport(storage);
 const sources: ContentFetcher[] = [
   new WikipediaSource(),
   new HackerNewsSource(),

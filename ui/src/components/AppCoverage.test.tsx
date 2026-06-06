@@ -29,7 +29,7 @@ const setupFetchMocks = () => {
                 ok: true, 
                 json: async () => ({ 
                     token: 'test-token', 
-                    user: { id: 'dev-user', email: 'dev@stumble.local' } 
+                    user: { id: 'dev-user', email: 'dev@stumble.local', display_name: 'Dev User' } 
                 }) 
             });
         }

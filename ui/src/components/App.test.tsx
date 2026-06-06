@@ -29,8 +29,14 @@ const setupFetchMocks = () => {
                 ok: true, 
                 json: async () => ({ 
                     token: 'test-token', 
-                    user: { id: 'dev-user', email: 'dev@stumble.local' } 
+                    user: { id: 'dev-user', email: 'dev@stumble.local', display_name: 'Dev User' } 
                 }) 
+            });
+        }
+        if (url.includes('/auth/me')) {
+            return Promise.resolve({
+                ok: true,
+                json: async () => ({ id: 'dev-user', email: 'dev@stumble.local', display_name: 'Dev User' })
             });
         }
         if (url.includes('/favorites') || url.includes('/history') || url.includes('/recommendations')) {
@@ -119,5 +125,13 @@ describe('App Component', () => {
     fireEvent.click(toggle);
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(localStorage.getItem('theme')).toBe('dark');
+  });
+
+  it('shows profile modal when clicking user button', async () => {
+    render(<App />);
+    const userButton = await screen.findByText(/Dev User/i);
+    fireEvent.click(userButton);
+    expect(screen.getByText(/Stumbles/i)).toBeInTheDocument();
+    expect(screen.getByText(/Logout/i)).toBeInTheDocument();
   });
 });

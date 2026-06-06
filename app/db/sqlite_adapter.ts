@@ -6,6 +6,7 @@ import Database from 'better-sqlite3';
 import crypto from 'crypto';
 import type { IStoragePort, RatedItem } from './storage_port.js';
 import type { StumbleAsset } from '../models/asset.js';
+import type { User } from '../models/user.js';
 
 /**
  * Adapter for SQLite storage.
@@ -30,7 +31,11 @@ export class SqliteAdapter implements IStoragePort {
         CREATE TABLE IF NOT EXISTS users (
           id TEXT PRIMARY KEY,
           email TEXT UNIQUE NOT NULL,
-          password_hash TEXT NOT NULL,
+          password_hash TEXT,
+          display_name TEXT,
+          avatar_url TEXT,
+          provider TEXT DEFAULT 'local',
+          provider_id TEXT,
           created_at TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS assets (
@@ -71,6 +76,7 @@ export class SqliteAdapter implements IStoragePort {
           FOREIGN KEY(user_id) REFERENCES users(id)
         )
       `);
+      this.migrate();
     } catch (error) {
       console.error('Database initialization failed:', error);
       throw error;
@@ -277,6 +283,86 @@ export class SqliteAdapter implements IStoragePort {
    */
   async get_user_preferences(user_id: string): Promise<{ type: string; name: string; score: number }[]> {
     return this.db.prepare('SELECT * FROM user_preferences WHERE user_id = ?').all(user_id) as { type: string; name: string; score: number }[];
+  }
+
+  /**
+   * Applies incremental schema migrations for legacy databases.
+   */
+  private migrate(): void {
+    const userCols = (this.db.prepare('PRAGMA table_info(users)').all() as { name: string }[]).map(c => c.name);
+    if (!userCols.includes('display_name')) {
+      this.db.exec('ALTER TABLE users ADD COLUMN display_name TEXT');
+    }
+    if (!userCols.includes('avatar_url')) {
+      this.db.exec('ALTER TABLE users ADD COLUMN avatar_url TEXT');
+    }
+    if (!userCols.includes('provider')) {
+      this.db.exec("ALTER TABLE users ADD COLUMN provider TEXT DEFAULT 'local'");
+    }
+    if (!userCols.includes('provider_id')) {
+      this.db.exec('ALTER TABLE users ADD COLUMN provider_id TEXT');
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async find_user_by_email(email: string): Promise<User | null> {
+    const row = this.db.prepare('SELECT * FROM users WHERE email = ?').get(email) as any;
+    return row ? this.map_row_to_user(row) : null;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async find_user_by_provider(provider: string, provider_id: string): Promise<User | null> {
+    const row = this.db.prepare('SELECT * FROM users WHERE provider = ? AND provider_id = ?').get(provider, provider_id) as any;
+    return row ? this.map_row_to_user(row) : null;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async get_user_by_id(id: string): Promise<User | null> {
+    const row = this.db.prepare('SELECT * FROM users WHERE id = ?').get(id) as any;
+    return row ? this.map_row_to_user(row) : null;
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async save_user(user: User): Promise<void> {
+    this.db.prepare(`
+      INSERT OR REPLACE INTO users (id, email, password_hash, display_name, avatar_url, provider, provider_id, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      user.id,
+      user.email,
+      user.password_hash || null,
+      user.display_name || null,
+      user.avatar_url || null,
+      user.provider,
+      user.provider_id || null,
+      user.created_at instanceof Date ? user.created_at.toISOString() : user.created_at
+    );
+  }
+
+  /**
+   * Maps a database row to a User object.
+   * @param {any} row - The database row.
+   * @returns {User}
+   */
+  private map_row_to_user(row: any): User {
+    return {
+      id: row.id,
+      email: row.email,
+      password_hash: row.password_hash || null,
+      display_name: row.display_name || undefined,
+      avatar_url: row.avatar_url || undefined,
+      provider: row.provider as any,
+      provider_id: row.provider_id || undefined,
+      created_at: new Date(row.created_at)
+    };
   }
 
   /**

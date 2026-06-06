@@ -1,15 +1,17 @@
 /**
- * @fileoverview Authentication router for user registration and login.
+ * @fileoverview Authentication router for user registration, login, and OAuth2.
  */
 
 import { Router } from 'express';
 import type { Request, Response } from 'express';
+import passport from 'passport';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import Database from 'better-sqlite3';
 import { settings } from '../../config/settings.js';
 import type { IStoragePort } from '../../db/storage_port.js';
+import type { AuthenticatedRequest } from '../../middleware/auth.js';
+import type { User } from '../../models/user.js';
 
 /**
  * Creates the authentication router.
@@ -18,8 +20,6 @@ import type { IStoragePort } from '../../db/storage_port.js';
  */
 export function createAuthRouter(storage: IStoragePort): Router {
   const router = Router();
-  // Accessing DB directly is discouraged but necessary due to current adapter design
-  const db = (storage as unknown as { db: Database.Database }).db;
 
   router.post('/register', async (req: Request, res: Response) => {
     try {
@@ -28,21 +28,27 @@ export function createAuthRouter(storage: IStoragePort): Router {
         return res.status(400).json({ error: 'Email and password are required' });
       }
 
-      const existingUser = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as { id: string; email: string; password_hash: string } | undefined;
-      if (existingUser) {
-        const token = jwt.sign({ id: existingUser.id }, settings.jwtSecret);
-        return res.json({ token, user: { id: existingUser.id, email: existingUser.email } });
+      let user = await storage.find_user_by_email(email);
+      if (user) {
+        const token = jwt.sign({ id: user.id }, settings.jwtSecret);
+        return res.json({ token, user: { id: user.id, email: user.email, display_name: user.display_name, avatar_url: user.avatar_url } });
       }
       
       const hashedPassword = await bcrypt.hash(password, 10);
       const userId = crypto.randomUUID();
       
-      db.prepare('INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)').run(
-        userId, email, hashedPassword, new Date().toISOString()
-      );
+      user = {
+        id: userId,
+        email,
+        password_hash: hashedPassword,
+        provider: 'local',
+        created_at: new Date(),
+      };
+      
+      await storage.save_user(user);
       
       const token = jwt.sign({ id: userId }, settings.jwtSecret);
-      res.json({ token, user: { id: userId, email } });
+      res.json({ token, user: { id: userId, email, display_name: user.display_name, avatar_url: user.avatar_url } });
     } catch (error) {
       console.error('Registration failed:', error);
       res.status(400).json({ error: 'Registration failed' });
@@ -52,17 +58,63 @@ export function createAuthRouter(storage: IStoragePort): Router {
   router.post('/login', async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
-      const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email) as { id: string, email: string, password_hash: string } | undefined;
+      const user = await storage.find_user_by_email(email);
       
-      if (!user || !(await bcrypt.compare(password, user.password_hash))) {
+      if (!user || !user.password_hash || !(await bcrypt.compare(password, user.password_hash))) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
       
       const token = jwt.sign({ id: user.id }, settings.jwtSecret);
-      res.json({ token, user: { id: user.id, email: user.email } });
+      res.json({ token, user: { id: user.id, email: user.email, display_name: user.display_name, avatar_url: user.avatar_url } });
     } catch (error) {
       console.error('Login failed:', error);
       res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // OAuth Routes
+  if (settings.google) {
+    router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+    router.get('/google/callback', 
+      passport.authenticate('google', { failureRedirect: '/login', session: false }),
+      (req: Request, res: Response) => {
+        const user = req.user as User;
+        const token = jwt.sign({ id: user.id }, settings.jwtSecret);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}?token=${token}`);
+      }
+    );
+  }
+
+  if (settings.github) {
+    router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+    router.get('/github/callback', 
+      passport.authenticate('github', { failureRedirect: '/login', session: false }),
+      (req: Request, res: Response) => {
+        const user = req.user as User;
+        const token = jwt.sign({ id: user.id }, settings.jwtSecret);
+        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}?token=${token}`);
+      }
+    );
+  }
+
+  router.get('/me', async (req: AuthenticatedRequest, res: Response) => {
+    try {
+      const userId = req.user_id;
+      if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+      
+      const user = await storage.get_user_by_id(userId);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      
+      res.json({
+        id: user.id,
+        email: user.email,
+        display_name: user.display_name,
+        avatar_url: user.avatar_url,
+        provider: user.provider,
+        created_at: user.created_at
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch profile' });
     }
   });
 

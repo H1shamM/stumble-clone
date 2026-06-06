@@ -57,11 +57,12 @@ export function App() {
   const [history, setHistory] = useState<RatedItem[]>([]);
   const [recommendations, setRecommendations] = useState<StumbleResult[]>([]);
   const [showAuth, setShowAuth] = useState(false);
-  const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ id: string; email: string; display_name?: string; avatar_url?: string } | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showHistory, setShowHistory] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [category, setCategory] = useState<Category>('all');
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
   const [showFavorites, setShowFavorites] = useState(false);
@@ -72,6 +73,23 @@ export function App() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const iframeLoadedRef = useRef(false);
   const iframeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      window.history.replaceState({}, document.title, window.location.pathname);
+      authenticatedFetch(`${API_BASE}/auth/me`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) {
+            setUser(data);
+            setToast('Logged in with OAuth!');
+          }
+        });
+    }
+  }, []);
 
   const authenticatedFetch = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token');
@@ -341,8 +359,13 @@ export function App() {
           <button className="btn theme-toggle" onClick={() => setDarkMode(!darkMode)} aria-label="Toggle theme">
             {darkMode ? '☀️' : '🌙'}
           </button>
-          <button className="btn secondary" onClick={() => setShowAuth(true)}>
-            {user ? user.email : 'Login/Register'}
+          <button className="btn secondary" onClick={() => user ? setShowProfile(true) : setShowAuth(true)}>
+            {user ? (
+              <div className="user-info">
+                {user.avatar_url && <img src={user.avatar_url} alt="" className="avatar-small" />}
+                <span>{user.display_name || user.email}</span>
+              </div>
+            ) : 'Login/Register'}
           </button>
           {isInstallable && (
             <button className="btn secondary install-btn" onClick={showInstallPrompt} aria-label="Install App">
@@ -360,7 +383,43 @@ export function App() {
             <input type="password" placeholder="Password" value={password} onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)} />
             <button className="btn primary" onClick={() => handleAuth(true)}>Login</button>
             <button className="btn secondary" onClick={() => handleAuth(false)}>Register</button>
+            <div className="divider"><span>OR</span></div>
+            <a href={`${API_BASE}/auth/google`} className="btn oauth-btn google-btn">Login with Google</a>
+            <a href={`${API_BASE}/auth/github`} className="btn oauth-btn github-btn">Login with GitHub</a>
             <button className="btn secondary" onClick={() => setShowAuth(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {showProfile && user && (
+        <div className="profile-modal">
+          <div className="profile-content">
+            <button className="close-btn" onClick={() => setShowProfile(false)}>✖</button>
+            <div className="profile-header">
+              {user.avatar_url ? (
+                <img src={user.avatar_url} alt="Profile" className="avatar-large" />
+              ) : (
+                <div className="avatar-placeholder">{user.email[0].toUpperCase()}</div>
+              )}
+              <h2>{user.display_name || 'Stumbler'}</h2>
+              <p className="profile-email">{user.email}</p>
+            </div>
+            <div className="profile-stats">
+              <div className="stat-item">
+                <span className="stat-value">{history.length}</span>
+                <span className="stat-label">Stumbles</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{favorites.length}</span>
+                <span className="stat-label">Favorites</span>
+              </div>
+            </div>
+            <button className="btn secondary logout-btn" onClick={() => {
+              localStorage.removeItem('token');
+              setUser(null);
+              setShowProfile(false);
+              setToast('Logged out');
+            }}>Logout</button>
           </div>
         </div>
       )}

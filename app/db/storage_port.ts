@@ -3,6 +3,7 @@
  */
 
 import type { StumbleAsset } from '../models/asset.js';
+import type { User } from '../models/user.js';
 
 /**
  * Represents an item from a user's rating history.
@@ -136,4 +137,33 @@ export interface IStoragePort {
    * @returns {Promise<void>}
    */
   update_user_preference(user_id: string, type: 'category' | 'source', name: string, delta: number): Promise<void>;
+
+  /**
+   * Finds a user by email.
+   * @param {string} email - The user's email.
+   * @returns {Promise<User | null>}
+   */
+  find_user_by_email(email: string): Promise<User | null>;
+
+  /**
+   * Finds a user by provider and provider ID.
+   * @param {string} provider - The OAuth provider name.
+   * @param {string} provider_id - The provider's unique user ID.
+   * @returns {Promise<User | null>}
+   */
+  find_user_by_provider(provider: string, provider_id: string): Promise<User | null>;
+
+  /**
+   * Retrieves a user by their ID.
+   * @param {string} id - The user's ID.
+   * @returns {Promise<User | null>}
+   */
+  get_user_by_id(id: string): Promise<User | null>;
+
+  /**
+   * Saves a new user or updates an existing one.
+   * @param {User} user - The user to save.
+   * @returns {Promise<void>}
+   */
+  save_user(user: User): Promise<void>;
 }
