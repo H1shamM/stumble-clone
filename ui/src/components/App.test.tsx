@@ -24,6 +24,15 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
  */
 const setupFetchMocks = () => {
     global.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes('/auth/register') || url.includes('/auth/login')) {
+            return Promise.resolve({ 
+                ok: true, 
+                json: async () => ({ 
+                    token: 'test-token', 
+                    user: { id: 'dev-user', email: 'dev@stumble.local' } 
+                }) 
+            });
+        }
         if (url.includes('/favorites') || url.includes('/history') || url.includes('/recommendations')) {
             return Promise.resolve({ ok: true, json: async () => [] });
         }
@@ -50,6 +59,7 @@ describe('App Component', () => {
 
   it('liking updates history and localStorage', async () => {
     global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ token: 'test-token', user: { id: 'dev-user', email: 'dev@stumble.local' } }) }) // auth/register
       .mockResolvedValueOnce({ ok: true, json: async () => [] }) // favorites
       .mockResolvedValueOnce({ ok: true, json: async () => [] }) // history
       .mockResolvedValueOnce({ ok: true, json: async () => [] }) // recs
@@ -63,18 +73,20 @@ describe('App Component', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => [{ rating_val: 'like', url: 'https://example.com' }] }); // history
 
     render(<App />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /🎲 Stumble/i })).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /🎲 Stumble/i }));
     
     await waitFor(() => expect(screen.getByLabelText('Like')).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText('Like'));
     
     await waitFor(() => {
-        expect(screen.getByText('📋 View History (1)')).toBeInTheDocument();
+        expect(screen.getByText(/View History \(1\)/i)).toBeInTheDocument();
     });
   });
 
   it('favorites toggle works', async () => {
     global.fetch = vi.fn()
+      .mockResolvedValueOnce({ ok: true, json: async () => ({ token: 'test-token', user: { id: 'dev-user', email: 'dev@stumble.local' } }) }) // auth/register
       .mockResolvedValueOnce({ ok: true, json: async () => [] }) // favorites
       .mockResolvedValueOnce({ ok: true, json: async () => [] }) // history
       .mockResolvedValueOnce({ ok: true, json: async () => [] }) // recs
@@ -86,6 +98,7 @@ describe('App Component', () => {
       .mockResolvedValueOnce({ ok: true, json: async () => [{ id: '123', url: 'https://example.com', title: 'Test' }] }); // get favs after toggle
 
     render(<App />);
+    await waitFor(() => expect(screen.getByRole('button', { name: /🎲 Stumble/i })).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: /🎲 Stumble/i }));
     
     await waitFor(() => expect(screen.getByLabelText('Save to favorites')).toBeInTheDocument());

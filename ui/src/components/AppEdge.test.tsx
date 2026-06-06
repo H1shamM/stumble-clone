@@ -24,6 +24,15 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock });
  */
 const setupFetchMocks = () => {
     global.fetch = vi.fn().mockImplementation((url) => {
+        if (url.includes('/auth/register') || url.includes('/auth/login')) {
+            return Promise.resolve({ 
+                ok: true, 
+                json: async () => ({ 
+                    token: 'test-token', 
+                    user: { id: 'dev-user', email: 'dev@stumble.local' } 
+                }) 
+            });
+        }
         if (url.includes('/favorites') || url.includes('/history') || url.includes('/recommendations') || url.includes('/stumble')) {
             return Promise.resolve({ ok: true, json: async () => [] });
         }
