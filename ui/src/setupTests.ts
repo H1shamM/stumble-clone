@@ -1,4 +1,5 @@
-import { expect } from 'vitest';
-import * as matchers from '@testing-library/jest-dom/matchers';
+/**
+ * @fileoverview Test setup file for Vitest and Testing Library.
+ */
 
-expect.extend(matchers);
+import '@testing-library/jest-dom/vitest';

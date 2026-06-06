@@ -30,7 +30,8 @@ describe('DiscoveryService', () => {
       get_history: vi.fn(),
       save_favorite: vi.fn().mockResolvedValue(undefined),
       remove_favorite: vi.fn().mockResolvedValue(undefined),
-      get_favorites: vi.fn().mockResolvedValue([])
+      get_favorites: vi.fn().mockResolvedValue([]),
+      update_user_preference: vi.fn().mockResolvedValue(undefined)
     };
     
     mock_source = {
@@ -41,13 +42,22 @@ describe('DiscoveryService', () => {
   });
 
   it('should update rating correctly', async () => {
-    await discovery_service.rate('1', true);
+    // Mock the asset lookup
+    mock_storage.get_asset_by_id.mockResolvedValue(mock_asset);
     
-    expect(mock_storage.save_rating).toHaveBeenCalledWith('1', 'like');
-    expect(mock_storage.update_rating).toHaveBeenCalledWith('1', 1);
+    const assetId = mock_asset.id;
+    const userId = 'user-123';
 
-    await discovery_service.rate('1', false);
-    expect(mock_storage.save_rating).toHaveBeenCalledWith('1', 'dislike');
-    expect(mock_storage.update_rating).toHaveBeenCalledWith('1', -1);
+    await discovery_service.rate(assetId, true, userId);
+    
+    expect(mock_storage.get_asset_by_id).toHaveBeenCalledWith(assetId);
+    expect(mock_storage.save_rating).toHaveBeenCalledWith(userId, assetId, 'like');
+    expect(mock_storage.update_rating).toHaveBeenCalledWith(assetId, 1);
+    expect(mock_storage.update_user_preference).toHaveBeenCalledWith(userId, 'category', 'science', 1);
+    expect(mock_storage.update_user_preference).toHaveBeenCalledWith(userId, 'source', 'Test', 1);
+
+    await discovery_service.rate(assetId, false, userId);
+    expect(mock_storage.save_rating).toHaveBeenCalledWith(userId, assetId, 'dislike');
+    expect(mock_storage.update_rating).toHaveBeenCalledWith(assetId, -1);
   });
 });

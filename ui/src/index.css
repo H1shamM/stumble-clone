@@ -1,4 +1,10 @@
+/**
+ * @fileoverview Global styles for the application.
+ * Defines theme variables for light and dark mode and base layout styles.
+ */
+
 :root {
+  /* Color Variables */
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
@@ -8,13 +14,16 @@
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  
+  /* Shadow Variables */
+  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  /* Typography Variables */
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* Base Styles */
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
   color-scheme: light dark;
@@ -30,6 +39,7 @@
   }
 }
 
+/** Dark Mode Override */
 @media (prefers-color-scheme: dark) {
   :root {
     --text: #9ca3af;
@@ -41,8 +51,7 @@
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
 
   #social .button-icon {
@@ -50,6 +59,7 @@
   }
 }
 
+/** Global Layout Styles */
 #root {
   width: 1126px;
   max-width: 100%;
@@ -66,6 +76,7 @@ body {
   margin: 0;
 }
 
+/** Typography Styles */
 h1,
 h2 {
   font-family: var(--heading);
@@ -82,6 +93,7 @@ h1 {
     margin: 20px 0;
   }
 }
+
 h2 {
   font-size: 24px;
   line-height: 118%;
@@ -91,6 +103,7 @@ h2 {
     font-size: 20px;
   }
 }
+
 p {
   margin: 0;
 }
