@@ -41,7 +41,7 @@ async function seed() {
               console.log(`Added: ${asset.title} (${asset.source})`);
             }
           }
-        } catch (e) {
+        } catch {
           // ignore
         }
         // small delay to avoid rate limiting

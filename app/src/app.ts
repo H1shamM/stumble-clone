@@ -23,7 +23,6 @@ import { DevToSource } from './sources/devto.js';
 import { UselessWebSource } from './sources/uselessweb.js';
 import { AtlasObscuraSource } from './sources/atlasobscura.js';
 import { BoredPandaSource } from './sources/boredpanda.js';
-import { WikipediaImageSource } from './sources/wikipedia_image.js';
 import { NasaApodSource } from './sources/nasa_apod.js';
 import { ProductHuntSource } from './sources/producthunt.js';
 import { YoutubeSource } from './sources/youtube.js';

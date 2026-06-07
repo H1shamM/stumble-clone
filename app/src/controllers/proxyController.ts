@@ -35,7 +35,7 @@ export class ProxyController {
     }
 
     try {
-      const { html, headers } = await fetchHtml(targetUrl);
+      const { html } = await fetchHtml(targetUrl);
       
       // Remove restrictive headers
       res.removeHeader('X-Frame-Options');
@@ -48,7 +48,7 @@ export class ProxyController {
       const rewrittenHtml = makeAbsolute(html, targetUrl);
       
       res.send(rewrittenHtml);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Proxy error:', error);
       res.status(502).send(`
         <html>

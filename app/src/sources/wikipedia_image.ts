@@ -5,15 +5,12 @@
 import crypto from 'crypto';
 import type { ContentFetcher } from './ContentFetcher.js';
 import type { StumbleAsset } from '../models/asset.js';
-import { fetchWithTimeout } from './utils.js';
 
 export class WikipediaImageSource implements ContentFetcher {
-  async fetchStumble(category: string): Promise<StumbleAsset | null> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async fetchStumble(_category: string): Promise<StumbleAsset | null> {
     try {
       // Use a static random image from Wikimedia Commons
-      const randomId = Math.floor(Math.random() * 1000) + 1;
-      const url = `https://upload.wikimedia.org/wikipedia/commons/thumb/random/${randomId}.jpg`;
-      // This is a fallback; better to use a real API but Wikimedia is complex.
       return {
         id: crypto.randomUUID(),
         url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Random_example.jpg/800px-Random_example.jpg',

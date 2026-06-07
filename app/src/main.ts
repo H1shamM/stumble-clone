@@ -45,8 +45,8 @@ async function bootstrap() {
   // Create dev user in development mode
   if (settings.env === 'development') {
     const devEmail = 'dev@stumble.local';
-    let devUser = await storage.findUserByEmail(devEmail);
-    if (!devUser) {
+    const existingDevUser = await storage.findUserByEmail(devEmail);
+    if (!existingDevUser) {
       logger.info('Creating dev user...');
       const hashedPassword = await bcrypt.hash('devpass', 10);
       const devUserId = crypto.randomUUID();
@@ -64,7 +64,7 @@ async function bootstrap() {
   }
 
 
-  const server = app.listen(settings.port, () => {
+  app.listen(settings.port, () => {
     logger.info(`Server running on port ${settings.port}`);
   });
 

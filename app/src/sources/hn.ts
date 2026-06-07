@@ -44,7 +44,7 @@ export class HackerNewsSource implements ContentFetcher {
       if (!itemRes.ok) {
         throw new Error(`HN Item API error: ${itemRes.statusText}`);
       }
-      const story = await itemRes.json();
+      const story: HackerNewsStory = await itemRes.json();
 
       return {
         id: crypto.randomUUID(),
