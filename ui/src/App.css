@@ -1,4 +1,4 @@
-/* ui/src/components/App.css */
+/* ui/src/App.css */
 
 /* Layout container */
 .app-container {
@@ -186,11 +186,38 @@ select {
 
 .iframe-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  background: var(--code-bg);
+  flex-direction: column;
+  padding: 0.5rem;
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
+}
+
+.stumble-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.source-favicon {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+}
+
+.reading-time {
+  margin-left: auto;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.iframe-title {
+  font-size: 1rem;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .iframe {
@@ -570,11 +597,6 @@ select {
   background: linear-gradient(90deg, var(--border) 25%, var(--code-bg) 50%, var(--border) 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
-}
-
-@keyframes skeleton-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 
 /* History list item hover */

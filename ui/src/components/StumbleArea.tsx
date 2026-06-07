@@ -1,4 +1,6 @@
 
+import { getFaviconUrl, estimateReadingTime } from '../utils/contentHelpers';
+
 interface StumbleResult {
   id: string;
   url: string;
@@ -63,6 +65,14 @@ export function StumbleArea({
     return (
       <div className="iframe-container">
         <div className="iframe-header">
+          <div className="stumble-card-header">
+            <img src={getFaviconUrl(current.source)} alt="" className="source-favicon" />
+            <span className="stumble-category">{current.category}</span>
+            <span className="stumble-source">{current.source}</span>
+            {estimateReadingTime(current.description) && (
+              <span className="reading-time">{estimateReadingTime(current.description)}</span>
+            )}
+          </div>
           <span className="iframe-title">{current.title || current.url}</span>
           <button className="close-btn" onClick={onClose} aria-label="Close iframe">✖</button>
         </div>
