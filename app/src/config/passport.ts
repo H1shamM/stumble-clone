@@ -21,8 +21,8 @@ export function initPassport(storage: IStoragePort): void {
       clientID: googleConfig.clientId,
       clientSecret: googleConfig.clientSecret,
       callbackURL: googleConfig.callbackUrl,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }, async (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: (error: any, user?: User) => void) => {
+      passReqToCallback: true,
+    }, async (_req: any, _accessToken: string, _refreshToken: string, profile: OAuthProfile, done: (error: any, user?: User) => void) => {
       try {
         let user = await storage.findUserByProvider('google', profile.id);
         if (!user) {
@@ -65,8 +65,8 @@ export function initPassport(storage: IStoragePort): void {
       clientID: githubConfig.clientId,
       clientSecret: githubConfig.clientSecret,
       callbackURL: githubConfig.callbackUrl,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }, async (_accessToken: string, _refreshToken: string, profile: OAuthProfile, done: (error: any, user?: User) => void) => {
+      passReqToCallback: true,
+    }, async (_req: any, _accessToken: string, _refreshToken: string, profile: OAuthProfile, done: (error: any, user?: User) => void) => {
       try {
         let user = await storage.findUserByProvider('github', profile.id);
         if (!user) {

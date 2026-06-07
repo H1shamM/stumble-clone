@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import type { StumbleResult } from './useStumble';
 import type { AuthenticatedFetch } from '../types';
+import type { StumbleResult } from './useStumble';
 
 const safeJson = async (res: Response) => {
   const text = await res.text();

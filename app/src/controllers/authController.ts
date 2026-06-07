@@ -9,8 +9,9 @@ import type { AuthenticatedRequest } from '../middleware/auth.js';
 
 export class AuthController {
   constructor(private storage: IStoragePort) {}
-//...
-  me = async (req: AuthenticatedRequest, res: Response) => {
+
+  register = async (req: Request, res: Response) => {
+    const { email, password } = req.body;
     if (!email || !password) {
       throw new AppError('Email and password are required', 400);
     }
