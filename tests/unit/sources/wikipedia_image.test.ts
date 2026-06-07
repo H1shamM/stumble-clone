@@ -28,13 +28,14 @@ describe('WikipediaImageSource', () => {
     expect(global.fetch).toHaveBeenCalled();
   });
 
-  it('should throw an error if the API request fails', async () => {
+  it('should return null if the API request fails', async () => {
     (global.fetch as any).mockResolvedValue({
       ok: false,
       statusText: 'Not Found',
     });
 
     const source = new WikipediaImageSource();
-    await expect(source.fetchStumble('art')).rejects.toThrow('Wikipedia Image API error: Not Found');
+    const result = await source.fetchStumble('art');
+    expect(result).toBeNull();
   });
 });

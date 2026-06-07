@@ -10,4 +10,9 @@ describe('WikipediaSource', () => {
     expect(result.title).toBe('Test');
     expect(result.url).toBe('https://test.com');
   });
+  it('should return null on failure', async () => {
+    global.fetch = vi.fn().mockResolvedValue({ ok: false });
+    const result = await source.fetchStumble('science');
+    expect(result).toBeNull();
+  });
 });
