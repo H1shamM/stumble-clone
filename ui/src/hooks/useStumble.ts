@@ -24,10 +24,8 @@ export function useStumble(authenticatedFetch: AuthenticatedFetch, category: str
   const iframeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setNextStumble(null);
-    }, 0);
-    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNextStumble(null);
   }, [category]);
 
   const clearIframeTimeout = useCallback(() => {
@@ -38,7 +36,6 @@ export function useStumble(authenticatedFetch: AuthenticatedFetch, category: str
   }, []);
 
   const setBlockedState = useCallback(() => {
-    console.log('Iframe blocked or timed out, showing fallback');
     setIframeError(true);
     clearIframeTimeout();
     if (current) {
@@ -56,14 +53,14 @@ export function useStumble(authenticatedFetch: AuthenticatedFetch, category: str
       if (!iframeLoadedRef.current) {
         setBlockedState();
       }
-    }, 5000); // 5 seconds for slow sites
+    }, 5000);
   }, [clearIframeTimeout, setBlockedState]);
 
   const prefetchNext = useCallback(async () => {
     try {
       const res = await authenticatedFetch(`/stumble?category=${category}`);
       if (!res.ok) return;
-      const data: StumbleResult = await res.json();
+      const data = await res.json();
       data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
       setNextStumble(data);
     } catch (err) {
@@ -126,7 +123,6 @@ export function useStumble(authenticatedFetch: AuthenticatedFetch, category: str
   }, [clearIframeTimeout]);
 
   const handleIframeLoad = useCallback(() => {
-    console.log('Iframe loaded successfully');
     iframeLoadedRef.current = true;
     clearIframeTimeout();
     setIframeError(false);
@@ -134,7 +130,6 @@ export function useStumble(authenticatedFetch: AuthenticatedFetch, category: str
 
   return {
     current,
-    nextStumble,
     loading,
     error,
     showIframe,

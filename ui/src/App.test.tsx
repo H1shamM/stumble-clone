@@ -36,7 +36,7 @@ describe('App Component', () => {
   it('renders initial empty state with Stumble button', () => {
     render(<App />);
     expect(screen.getByText(/Click/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Stumble/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Stumble })).toBeInTheDocument();
   });
 
   it('liking updates history and localStorage', async () => {
@@ -44,8 +44,8 @@ describe('App Component', () => {
     // Actually, setupFetchMocks is called in beforeEach.
     // Let's just render the app.
     render(<App />);
-    await waitFor(() => expect(screen.getByRole("button", { name: /Stumble/i })).toBeInTheDocument());
-    fireEvent.click(screen.getByRole("button", { name: /Stumble/i }));
+    await waitFor(() => expect(screen.getByRole("button", { name: /Stumble })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: /Stumble }));
     
     // We need to match the actual label in the UI
     await waitFor(() => expect(screen.getByLabelText('Like')).toBeInTheDocument());
@@ -58,8 +58,8 @@ describe('App Component', () => {
 
   it('favorites toggle works', async () => {
     render(<App />);
-    await waitFor(() => expect(screen.getByRole("button", { name: /Stumble/i })).toBeInTheDocument());
-    fireEvent.click(screen.getByRole("button", { name: /Stumble/i }));
+    await waitFor(() => expect(screen.getByRole("button", { name: /Stumble })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: /Stumble }));
     
     await waitFor(() => expect(screen.getByLabelText('Save to favorites')).toBeInTheDocument());
     const favBtn = screen.getByLabelText('Save to favorites');

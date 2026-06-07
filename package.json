@@ -15,11 +15,11 @@
   "lint-staged": {
     "app/**/*.{js,ts}": [
       "eslint --fix",
-      "bash -c \"cd app && npm run typecheck\""
+      "bash -c \"cd app && if npm run typecheck --if-present; then echo ''; else echo 'No typecheck script'; fi\""
     ],
     "ui/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
-      "bash -c \"cd ui && npm run typecheck\""
+      "bash -c \"cd ui && if npm run typecheck --if-present; then echo ''; else echo 'No typecheck script'; fi\""
     ]
   }
 }

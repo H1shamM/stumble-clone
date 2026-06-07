@@ -34,9 +34,9 @@ const setupFetchMocks = () => {
             });
         }
         if (url.includes('/favorites') || url.includes('/history') || url.includes('/recommendations') || url.includes('/stumble')) {
-            return Promise.resolve({ ok: true, json: async () => [] });
+            return Promise.resolve({ ok: true, json: async () => [], text: async () => "[]" });
         }
-        return Promise.resolve({ ok: true, json: async () => ({}) });
+        return Promise.resolve({ ok: true, json: async () => {}, text: async () => JSON.stringify({}) });
     });
 };
 
@@ -69,11 +69,11 @@ describe('App Component Edge Coverage', () => {
         if (url.includes('/stumble')) {
             return Promise.reject(new Error('error'));
         }
-        return Promise.resolve({ ok: true, json: async () => [] });
+        return Promise.resolve({ ok: true, json: async () => [], text: async () => "[]" });
     });
     render(<App />);
     fireEvent.click(screen.getByRole('button', { name: /Stumble/i }));
     
-    await waitFor(() => expect(screen.getByText(/Something went wrong/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.findByText(/Something went wrong/i)).toBeInTheDocument());
   });
 });

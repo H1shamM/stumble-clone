@@ -34,9 +34,9 @@ const setupFetchMocks = () => {
             });
         }
         if (url.includes('/favorites') || url.includes('/history') || url.includes('/recommendations') || url.includes('/stumble')) {
-            return Promise.resolve({ ok: true, json: async () => [] });
+            return Promise.resolve({ ok: true, json: async () => [], text: async () => "[]" });
         }
-        return Promise.resolve({ ok: true, json: async () => ({}) });
+        return Promise.resolve({ ok: true, json: async () => {}, text: async () => JSON.stringify({}) });
     });
 };
 
@@ -57,7 +57,7 @@ describe('App Component Coverage', () => {
   it('handles API errors', async () => {
     window.fetch = vi.fn().mockImplementation((url) => {
         if (url.includes('/favorites') || url.includes('/history') || url.includes('/recommendations')) {
-            return Promise.resolve({ ok: true, json: async () => [] });
+            return Promise.resolve({ ok: true, json: async () => [], text: async () => "[]" });
         }
         return Promise.resolve({ ok: false, statusText: 'Not Found' });
     });
@@ -73,10 +73,10 @@ describe('App Component Coverage', () => {
   it('removes favorites', async () => {
     window.fetch = vi.fn()
         .mockResolvedValueOnce({ ok: true, json: async () => [{ id: '1', url: 'https://test.com', title: 'Test' }] }) // favorites
-        .mockResolvedValueOnce({ ok: true, json: async () => [] }) // history
-        .mockResolvedValueOnce({ ok: true, json: async () => [] }) // recs
+        .mockResolvedValueOnce({ ok: true, json: async () => [], text: async () => "[]" }) // history
+        .mockResolvedValueOnce({ ok: true, json: async () => [], text: async () => "[]" }) // recs
         .mockResolvedValueOnce({ ok: true }) // delete fav
-        .mockResolvedValueOnce({ ok: true, json: async () => [] }); // get favs after toggle
+        .mockResolvedValueOnce({ ok: true, json: async () => [], text: async () => "[]" }); // get favs after toggle
         
     render(<App />);
     
@@ -85,7 +85,7 @@ describe('App Component Coverage', () => {
     fireEvent.click(screen.getByRole('button', { name: /Favorites/i }));
 
     // Find and click remove button
-    const removeBtn = await screen.findByRole("button", { name: /Remove from favorites/i });
+    const removeBtn = await screen.findByLabelText("Remove from favorites");
     fireEvent.click(removeBtn);
     
     await waitFor(() => expect(screen.getByText(/No favorites yet/i)).toBeInTheDocument());
@@ -97,10 +97,10 @@ describe('App Component Coverage', () => {
       if (url.includes('/stumble')) {
         return Promise.resolve({
           ok: true,
-          json: async () => ({ id: '456', url: 'https://wikipedia.org/wiki/Random', title: 'Random', category: 'random' })
+          json: async () => { id: '456', url: 'https://wikipedia.org/wiki/Random', title: 'Random', category: 'random' }, text: async () => JSON.stringify({ id: '456', url: 'https://wikipedia.org/wiki/Random', title: 'Random', category: 'random' })
         });
       }
-      return Promise.resolve({ ok: true, json: async () => [] });
+      return Promise.resolve({ ok: true, json: async () => [], text: async () => "[]" });
     });
     
     render(<App />);
@@ -122,10 +122,10 @@ describe('App Component Coverage', () => {
       if (url.includes('/stumble')) {
         return Promise.resolve({
           ok: true,
-          json: async () => ({ id: '789', url: 'https://dev.to/post', title: 'Tech', category: 'tech' })
+          json: async () => { id: '789', url: 'https://dev.to/post', title: 'Tech', category: 'tech' }, text: async () => JSON.stringify({ id: '789', url: 'https://dev.to/post', title: 'Tech', category: 'tech' })
         });
       }
-      return Promise.resolve({ ok: true, json: async () => [] });
+      return Promise.resolve({ ok: true, json: async () => [], text: async () => "[]" });
     });
       
     render(<App />);

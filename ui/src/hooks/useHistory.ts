@@ -1,4 +1,3 @@
-// ui/src/hooks/useHistory.ts
 import { useState, useEffect, useCallback } from 'react';
 import type { AuthenticatedFetch } from '../types';
 
@@ -16,7 +15,6 @@ const safeJson = async (res: Response) => {
   try {
     return JSON.parse(text);
   } catch {
-    console.warn('Invalid JSON in history:', text.slice(0, 200));
     return null;
   }
 };
@@ -27,6 +25,7 @@ export function useHistory(authenticatedFetch: AuthenticatedFetch) {
   const [loading, setLoading] = useState(true);
 
   const loadHistory = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await authenticatedFetch('/history?limit=20');
       if (res.ok) {
@@ -44,10 +43,8 @@ export function useHistory(authenticatedFetch: AuthenticatedFetch) {
   }, [authenticatedFetch]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      loadHistory();
-    }, 0);
-    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadHistory();
   }, [loadHistory]);
 
   return { history, showHistory, setShowHistory, loadHistory, loading };
