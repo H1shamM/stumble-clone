@@ -4,6 +4,7 @@ import { useStumble } from './hooks/useStumble';
 import { useFavorites } from './hooks/useFavorites';
 import { useHistory } from './hooks/useHistory';
 import { usePWA } from './hooks/usePWA';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
 import { AuthModal } from './components/AuthModal';
@@ -57,6 +58,15 @@ export function App() {
 
   const { favorites, showFavorites, setShowFavorites, toggleFavorite, removeFavorite, isFavorite } = useFavorites(authenticatedFetch);
   const { history, showHistory, setShowHistory, loadHistory } = useHistory(authenticatedFetch);
+
+  useKeyboardShortcuts({
+    onNext: fetchStumble,
+    onLike: () => handleRate('like'),
+    onDislike: () => handleRate('dislike'),
+    onToggleFavorites: () => setShowFavorites(prev => !prev),
+    onToggleHistory: () => setShowHistory(prev => !prev),
+    enabled: !!current && showIframe,
+  });
 
   // Rating state
   const [rating, setRating] = useState<'like' | 'dislike' | null>(null);
