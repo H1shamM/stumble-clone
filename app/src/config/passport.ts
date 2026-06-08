@@ -1,8 +1,4 @@
 import type { OAuthProfile } from "../types/auth.js";
-/**
- * @fileoverview Passport configuration for OAuth2 strategies.
- */
-
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as GitHubStrategy } from "passport-github2";
@@ -10,6 +6,9 @@ import crypto from "crypto";
 import { settings } from "./settings.js";
 import type { IStoragePort } from "../db/storagePort.js";
 import type { User } from "../models/user.js";
+import type { Request } from "express";
+import type { VerifyCallback } from "passport-oauth2";
+import type { GoogleCallbackParameters } from "passport-google-oauth20";
 
 /**
  * Initializes passport with OAuth2 strategies.
@@ -26,12 +25,12 @@ export function initPassport(storage: IStoragePort): void {
           passReqToCallback: true,
         },
         async (
-          _req: any,
+          _req: Request,
           _accessToken: string,
           _refreshToken: string,
-          _params: any,
+          _params: GoogleCallbackParameters,
           profile: OAuthProfile,
-          done: (error: any, user?: User) => void,
+          done: VerifyCallback,
         ) => {
           try {
             let user = await storage.findUserByProvider("google", profile.id);
@@ -42,14 +41,12 @@ export function initPassport(storage: IStoragePort): void {
 
               user = await storage.findUserByEmail(email);
               if (user) {
-                // Link existing account
                 user.provider = "google";
                 user.provider_id = profile.id;
                 user.display_name = user.display_name || profile.displayName;
                 user.avatar_url = user.avatar_url || profile.photos?.[0]?.value;
                 await storage.saveUser(user);
               } else {
-                // Create new account
                 user = {
                   id: crypto.randomUUID(),
                   email,
@@ -65,7 +62,7 @@ export function initPassport(storage: IStoragePort): void {
             }
             return done(null, user);
           } catch (error) {
-            return done(error);
+            return done(error as Error);
           }
         },
       ),
@@ -83,11 +80,11 @@ export function initPassport(storage: IStoragePort): void {
           passReqToCallback: true,
         },
         async (
-          _req: any,
+          _req: Request,
           _accessToken: string,
           _refreshToken: string,
           profile: OAuthProfile,
-          done: (error: any, user?: User) => void,
+          done: VerifyCallback,
         ) => {
           try {
             let user = await storage.findUserByProvider("github", profile.id);
@@ -98,14 +95,12 @@ export function initPassport(storage: IStoragePort): void {
 
               user = await storage.findUserByEmail(email);
               if (user) {
-                // Link existing account
                 user.provider = "github";
                 user.provider_id = profile.id;
                 user.display_name = user.display_name || profile.displayName;
                 user.avatar_url = user.avatar_url || profile.photos?.[0]?.value;
                 await storage.saveUser(user);
               } else {
-                // Create new account
                 user = {
                   id: crypto.randomUUID(),
                   email,
@@ -122,17 +117,15 @@ export function initPassport(storage: IStoragePort): void {
             }
             return done(null, user);
           } catch (error) {
-            return done(error);
+            return done(error as Error);
           }
         },
       ),
     );
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  passport.serializeUser((user: any, done) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    done(null, (user as any).id);
+  passport.serializeUser((user: Express.User, done) => {
+    done(null, (user as User).id);
   });
 
   passport.deserializeUser(async (id: string, done) => {
