@@ -43,11 +43,12 @@
 
 ## Sprint 5: Migration & SaaS UI Overhaul (In Progress)
 
-| ID    | Story                                   | Size | Status            |
-| ----- | --------------------------------------- | ---- | ----------------- |
-| S5-01 | Build repair & Tailwind v4 wiring (bug)        | S    | Done (PR #79) |
-| S5-02 | Modern SaaS UI overhaul (sidebar+main)         | L    | Done (PR #81) |
+| ID    | Story                                           | Size | Status        |
+| ----- | ----------------------------------------------- | ---- | ------------- |
+| S5-01 | Build repair & Tailwind v4 wiring (bug)         | S    | Done (PR #79) |
+| S5-02 | Modern SaaS UI overhaul (sidebar+main)          | L    | Done (PR #81) |
 | S5-03 | Supervised Gemini junior-dev pipeline + helpers | M    | Done          |
+| S5-04 | In-app reader-first viewing (hybrid)            | L    | In Progress   |
 
 S5-02: indigo oklch design tokens, sidebar + main app shell, top-bar Header
 (search + theme + avatar/dropdown user menu), redesigned StumbleArea +
@@ -58,6 +59,11 @@ S5-03: dedicated `H1shamM-bot` account (Write-only), `master` branch protection
 (PR + code-owner review + CI), `GEMINI.md` junior playbook, Gemini Task issue
 template, and CODEOWNERS. Junior tasks are tracked as `gemini-ready` GitHub issues
 (e.g. #84–#86, the contentHelpers utilities) and reviewed/merged by the senior.
+
+S5-04: reader-first hybrid in-app viewing. Phase 0 (senior): `GET /api/v1/reader`
+extracts + sanitizes article content (jsdom + @mozilla/readability + sanitize-html)
+with an SSRF guard. Phase 1 (Gemini): `ReaderView` component, `useReader` hook,
+view-mode toggle, and the reader→iframe→open-in-tab fallback in StumbleArea.
 
 ### Backlog
 
