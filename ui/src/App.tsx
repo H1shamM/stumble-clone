@@ -18,7 +18,8 @@ import { SubmissionForm } from "./components/SubmissionForm";
 import { useToast } from "./contexts/ToastContext";
 import { useStumble, type StumbleResult } from "./hooks/useStumble";
 import type { AuthenticatedFetch } from "./types";
-// ...
+import { ErrorBoundary } from "./components/ErrorBoundary";
+
 type Category = "all" | "tech" | "art" | "science" | "random";
 
 export function App() {
@@ -28,6 +29,7 @@ export function App() {
   const [recommendations, setRecommendations] = useState<StumbleResult[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { darkMode, setDarkMode } = useTheme();
+  const [networkError, setNetworkError] = useState<string | null>(null);
 
   const {
     user,
@@ -79,7 +81,6 @@ export function App() {
     enabled: !!current && showIframe,
   });
 
-  // Rating state
   const [rating, setRating] = useState<"like" | "dislike" | null>(null);
   const [rateLoading, setRateLoading] = useState(false);
 
@@ -87,34 +88,25 @@ export function App() {
     if (!current) return;
     setRateLoading(true);
     try {
-      await authenticatedFetch(`/rate`, {
+      const response = await authenticatedFetch(`/rate`, {
         method: "POST",
         body: JSON.stringify({
           assetId: current.id,
           isPositive: type === "like",
         }),
       });
+      if (!response.ok) {
+        if (response.status === 404) addToast("Asset not found", "error");
+        else if (response.status === 429)
+          addToast("Too many requests, try again later", "error");
+        else addToast("Rating failed", "error");
+        return;
+      }
       setRating(type);
-      await authenticatedFetch(`/preferences`, {
-        method: "POST",
-        body: JSON.stringify({
-          type: "category",
-          name: current.category,
-          delta: type === "like" ? 1 : -1,
-        }),
-      });
-      await authenticatedFetch(`/preferences`, {
-        method: "POST",
-        body: JSON.stringify({
-          type: "source",
-          name: current.source,
-          delta: type === "like" ? 1 : -1,
-        }),
-      });
       await loadHistory();
-    } catch (err) {
-      console.error("Rating failed", err);
-      addToast("Rating failed", "error");
+    } catch {
+      setNetworkError("Backend unreachable. Please check your connection.");
+      addToast("Network error", "error");
     } finally {
       setRateLoading(false);
     }
@@ -131,7 +123,6 @@ export function App() {
     } else {
       await navigator.clipboard.writeText(current.url);
       addToast("Link copied!");
-      setTimeout(() => addToast("Failed"), 2000);
     }
   };
 
@@ -142,117 +133,135 @@ export function App() {
         `/search?q=${encodeURIComponent(searchQuery)}`,
       );
       if (res.ok) setRecommendations(await res.json());
+      else if (res.status === 404) addToast("No results found", "info");
+      else addToast("Search failed", "error");
     } catch {
-      addToast("Search failed");
+      setNetworkError("Backend unreachable.");
     }
   };
 
-  // Load recommendations
   useEffect(() => {
     authenticatedFetch(`/recommendations`)
       .then((res) => (res.ok ? res.json() : []))
-      .then(setRecommendations);
+      .then(setRecommendations)
+      .catch(() => setNetworkError("Failed to load recommendations."));
   }, [authenticatedFetch]);
 
-  // Dark mode effect
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
     localStorage.setItem("theme", darkMode ? "dark" : "light");
   }, [darkMode]);
 
-  // Dev auth
   useEffect(() => {
     ensureDevAuth();
   }, [ensureDevAuth]);
 
   return (
-    <div className="app-container">
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-      <Header
-        darkMode={darkMode}
-        setDarkMode={setDarkMode}
-        user={user}
-        onUserClick={() => (user ? setShowProfile(true) : setShowAuth(true))}
-        isInstallable={isInstallable}
-        onInstall={showInstallPrompt}
-      />
-
-      <AuthModal
-        isOpen={showAuth && !user}
-        email={email}
-        password={password}
-        onEmailChange={(e) => setEmail(e.target.value)}
-        onPasswordChange={(e) => setPassword(e.target.value)}
-        onLogin={() => handleAuth(true)}
-        onRegister={() => handleAuth(false)}
-        onClose={() => setShowAuth(false)}
-        apiBase={import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"}
-      />
-
-      <ProfileModal
-        isOpen={showProfile && !!user}
-        user={user}
-        historyCount={history.length}
-        favoritesCount={favorites.length}
-        onClose={() => setShowProfile(false)}
-        onLogout={logout}
-      />
-
-      <CategoryBar
-        category={category}
-        onCategoryChange={setCategory}
-        searchQuery={searchQuery}
-        onSearchQueryChange={setSearchQuery}
-        onSearchSubmit={handleSearch}
-      />
-
-      <main id="main-content" className="main-content">
-        <StumbleArea
-          showIframe={showIframe}
-          loading={loading}
-          error={error}
-          current={current}
-          iframeError={iframeError}
-          onRetry={fetchStumble}
-          onClose={handleClose}
-          onIframeLoad={handleIframeLoad}
+    <ErrorBoundary>
+      <div className="app-container">
+        {networkError && (
+          <div className="network-error-banner" role="status">
+            <p>⚠️ {networkError}</p>
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                setNetworkError(null);
+                window.location.reload();
+              }}
+            >
+              Retry
+            </button>
+          </div>
+        )}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <Header
+          darkMode={darkMode}
+          setDarkMode={setDarkMode}
+          user={user}
+          onUserClick={() => (user ? setShowProfile(true) : setShowAuth(true))}
+          isInstallable={isInstallable}
+          onInstall={showInstallPrompt}
         />
 
-        <ActionButtons
-          showIframe={showIframe}
-          current={current}
-          loading={loading}
-          rating={rating}
-          rateLoading={rateLoading}
-          isFavorite={isFavorite(current)}
-          onRate={handleRate}
-          onToggleFavorite={() => toggleFavorite(current)}
-          onShare={handleShare}
-          onNext={fetchStumble}
+        <AuthModal
+          isOpen={showAuth && !user}
+          email={email}
+          password={password}
+          onEmailChange={(e) => setEmail(e.target.value)}
+          onPasswordChange={(e) => setPassword(e.target.value)}
+          onLogin={() => handleAuth(true)}
+          onRegister={() => handleAuth(false)}
+          onClose={() => setShowAuth(false)}
+          apiBase={
+            import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1"
+          }
         />
 
-        <HistoryPanel
-          history={history}
-          showHistory={showHistory}
-          setShowHistory={setShowHistory}
-          onStumble={fetchStumble}
+        <ProfileModal
+          isOpen={showProfile && !!user}
+          user={user}
+          historyCount={history.length}
+          favoritesCount={favorites.length}
+          onClose={() => setShowProfile(false)}
+          onLogout={logout}
         />
-        <FavoritesPanel
-          favorites={favorites}
-          showFavorites={showFavorites}
-          setShowFavorites={setShowFavorites}
-          onRemove={removeFavorite}
-          onStumble={fetchStumble}
+
+        <CategoryBar
+          category={category}
+          onCategoryChange={setCategory}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          onSearchSubmit={handleSearch}
         />
-        <RecommendationsPanel recommendations={recommendations} />
-        <SubmissionForm
-          onSuccess={() => addToast("Submitted!")}
-          authenticatedFetch={typedAuthenticatedFetch}
-        />
-      </main>
-    </div>
+
+        <main id="main-content" className="main-content">
+          <StumbleArea
+            showIframe={showIframe}
+            loading={loading}
+            error={error}
+            current={current}
+            iframeError={iframeError}
+            onRetry={fetchStumble}
+            onClose={handleClose}
+            onIframeLoad={handleIframeLoad}
+          />
+
+          <ActionButtons
+            showIframe={showIframe}
+            current={current}
+            loading={loading}
+            rating={rating}
+            rateLoading={rateLoading}
+            isFavorite={isFavorite(current)}
+            onRate={handleRate}
+            onToggleFavorite={() => toggleFavorite(current)}
+            onShare={handleShare}
+            onNext={fetchStumble}
+          />
+
+          <HistoryPanel
+            history={history}
+            showHistory={showHistory}
+            setShowHistory={setShowHistory}
+            onStumble={fetchStumble}
+          />
+          <FavoritesPanel
+            favorites={favorites}
+            showFavorites={showFavorites}
+            setShowFavorites={setShowFavorites}
+            onRemove={removeFavorite}
+            onStumble={fetchStumble}
+          />
+          <RecommendationsPanel recommendations={recommendations} />
+          <SubmissionForm
+            onSuccess={() => addToast("Submitted!")}
+            authenticatedFetch={typedAuthenticatedFetch}
+          />
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 }
 

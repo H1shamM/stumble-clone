@@ -34,12 +34,10 @@ export function FavoritesPanel({
             <div className="empty-state">
               <div className="empty-icon">⭐</div>
               <h3>No favorites yet</h3>
-              <p>Save interesting stumbles by clicking the star button.</p>
-              {onStumble && (
-                <button className="btn-primary" onClick={onStumble}>
-                  Explore now
-                </button>
-              )}
+              <p>Your treasure chest is empty. Star something cool!</p>
+              <button className="btn-primary" onClick={onStumble}>
+                Explore now
+              </button>
             </div>
           ) : (
             <ul className="favorites-list">

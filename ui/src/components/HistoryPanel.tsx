@@ -28,13 +28,11 @@ export function HistoryPanel({
               <div className="empty-icon">📜</div>
               <h3>No history yet</h3>
               <p>
-                Start stumbling and like/dislike content to build your history.
+                Your journey has just begun. Stumble and rate to see your path.
               </p>
-              {onStumble && (
-                <button className="btn-primary" onClick={onStumble}>
-                  Start stumbling
-                </button>
-              )}
+              <button className="btn-primary" onClick={onStumble}>
+                Explore now
+              </button>
             </div>
           ) : (
             <ul className="history-list">
