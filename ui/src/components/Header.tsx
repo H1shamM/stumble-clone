@@ -1,5 +1,13 @@
-// ui/src/components/Header.tsx
 import React from "react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, LogOut, Sun, Moon } from "lucide-react";
 
 interface HeaderProps {
   darkMode: boolean;
@@ -24,33 +32,68 @@ export function Header({
   onInstall,
 }: HeaderProps) {
   return (
-    <header className="app-header">
-      <h1 className="logo">StumbleClone</h1>
-      <div className="nav-group">
-        <button
-          className="btn btn-secondary"
-          onClick={() => setDarkMode(!darkMode)}
-          aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-        >
-          {darkMode ? "☀️" : "🌙"}
-        </button>
-        <button className="btn btn-secondary" onClick={onUserClick}>
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center justify-between">
+        <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          StumbleClone
+        </h1>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setDarkMode(!darkMode)}
+            aria-label="Toggle theme"
+          >
+            {darkMode ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+
           {user ? (
-            <div className="user-info">
-              {user.avatar_url && (
-                <img src={user.avatar_url} alt="" className="avatar-small" />
-              )}
-              <span>{user.display_name || user.email}</span>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={user.avatar_url}
+                      alt={user.display_name || "User"}
+                    />
+                    <AvatarFallback>
+                      {(user.display_name || user.email)[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onUserClick}>
+                  <User className="mr-2 h-4 w-4" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={
+                    onUserClick /* replace with logout logic if needed */
+                  }
+                >
+                  <LogOut className="mr-2 h-4 w-4" /> Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            "Login"
+            <Button variant="default" onClick={onUserClick}>
+              Login
+            </Button>
           )}
-        </button>
-        {isInstallable && (
-          <button className="btn btn-secondary" onClick={onInstall}>
-            📲 Install
-          </button>
-        )}
+
+          {isInstallable && (
+            <Button variant="outline" onClick={onInstall}>
+              Install
+            </Button>
+          )}
+        </div>
       </div>
     </header>
   );

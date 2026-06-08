@@ -1,12 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import {
   Controller,
-  ControllerProps,
-  FieldPath,
-  FieldValues,
+  type ControllerProps,
+  type FieldPath,
+  type FieldValues,
   FormProvider,
   useFormContext,
 } from "react-hook-form";
@@ -31,8 +32,15 @@ const useFormField = () => {
     throw new Error("useFormField should be used within <FormField>");
   }
 
+  const { getFieldState, formState } = fieldContext;
+
+  const fieldState = getFieldState(
+    fieldContext.control._names.valueOf() as any,
+    formState,
+  );
+
   return {
-    name: fieldContext.getFieldState,
+    ...fieldState,
   };
 };
 
