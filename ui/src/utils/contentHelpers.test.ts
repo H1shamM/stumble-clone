@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getFaviconUrl, estimateReadingTime, getDomainFromUrl, truncate } from "./contentHelpers";
+import { getFaviconUrl, estimateReadingTime, getDomainFromUrl, truncate, pluralize } from "./contentHelpers";
 
 describe("contentHelpers", () => {
   it("should return correct favicon URL for known sources", () => {
@@ -48,6 +48,15 @@ describe("contentHelpers", () => {
 
     it("should truncate and add ellipsis if length is greater than max", () => {
       expect(truncate("hello world", 5)).toBe("hell…");
+    });
+  });
+
+  describe("pluralize", () => {
+    it("should pluralize correctly", () => {
+      expect(pluralize(1, "favorite")).toBe("1 favorite");
+      expect(pluralize(2, "favorite")).toBe("2 favorites");
+      expect(pluralize(0, "favorite")).toBe("0 favorites");
+      expect(pluralize(3, "entry", "entries")).toBe("3 entries");
     });
   });
 });
