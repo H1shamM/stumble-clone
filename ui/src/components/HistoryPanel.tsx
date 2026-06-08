@@ -1,4 +1,6 @@
 import type { HistoryItem } from "../hooks/useHistory";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface HistoryPanelProps {
   history: HistoryItem[];
@@ -14,46 +16,49 @@ export function HistoryPanel({
   onStumble,
 }: HistoryPanelProps) {
   return (
-    <div className="history-section">
-      <button
-        className="btn secondary history-toggle"
+    <div className="mt-space-6">
+      <Button
+        variant="outline"
         onClick={() => setShowHistory(!showHistory)}
+        className="w-full justify-between"
       >
-        {showHistory ? "🔽 Hide History" : "📋 View History"} ({history.length})
-      </button>
+        <span>{showHistory ? "🔽 Hide History" : "📋 View History"}</span>
+        <span>({history.length})</span>
+      </Button>
       {showHistory && (
-        <div className="history-panel">
-          {history.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📜</div>
-              <h3>No history yet</h3>
-              <p>
-                Your journey has just begun. Stumble and rate to see your path.
-              </p>
-              <button className="btn-primary" onClick={onStumble}>
-                Explore now
-              </button>
-            </div>
-          ) : (
-            <ul className="history-list">
-              {history.slice(0, 10).map((item) => (
-                <li key={item.timestamp.toString()} className="history-item">
-                  <span className="history-rating">
-                    {item.rating_val === "like" ? "👍" : "👎"}
-                  </span>
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="history-url"
+        <Card className="mt-space-4">
+          <CardHeader>
+            <CardTitle>History</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {history.length === 0 ? (
+              <div className="text-center py-space-6 text-muted-foreground">
+                <p>Your journey has just begun.</p>
+                <Button onClick={onStumble} className="mt-space-2">
+                  Explore now
+                </Button>
+              </div>
+            ) : (
+              <ul className="grid grid-cols-1 md:grid-cols-2 gap-space-4">
+                {history.slice(0, 10).map((item) => (
+                  <li
+                    key={item.timestamp.toString()}
+                    className="p-space-3 border rounded-md"
                   >
-                    {item.title || item.url}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium hover:text-accent"
+                    >
+                      {item.title || item.url}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
       )}
     </div>
   );

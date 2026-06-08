@@ -1,14 +1,17 @@
-// ui/src/components/ProfileModal.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProfileModalProps {
   isOpen: boolean;
-  user: {
-    id: string;
-    email: string;
-    display_name?: string;
-    avatar_url?: string;
-  } | null;
+  user: any;
   historyCount: number;
   favoritesCount: number;
   onClose: () => void;
@@ -23,39 +26,38 @@ export function ProfileModal({
   onClose,
   onLogout,
 }: ProfileModalProps) {
-  if (!isOpen || !user) return null;
+  if (!user) return null;
 
   return (
-    <div className="profile-modal">
-      <div className="profile-content">
-        <button className="close-btn" onClick={onClose}>
-          ✖
-        </button>
-        <div className="profile-header">
-          {user.avatar_url ? (
-            <img src={user.avatar_url} alt="Profile" className="avatar-large" />
-          ) : (
-            <div className="avatar-placeholder">
-              {user.email[0].toUpperCase()}
-            </div>
-          )}
-          <h2>{user.display_name || "Stumbler"}</h2>
-          <p className="profile-email">{user.email}</p>
-        </div>
-        <div className="profile-stats">
-          <div className="stat-item">
-            <span className="stat-value">{historyCount}</span>
-            <span className="stat-label">Stumbles</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-value">{favoritesCount}</span>
-            <span className="stat-label">Favorites</span>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Profile</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center gap-space-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={user.avatar_url} alt={user.display_name} />
+            <AvatarFallback>{user.display_name?.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h3 className="text-lg font-bold">{user.display_name}</h3>
+            <p className="text-muted-foreground">{user.email}</p>
           </div>
         </div>
-        <button className="btn secondary logout-btn" onClick={onLogout}>
+        <div className="grid grid-cols-2 gap-space-4 mt-space-4">
+          <div className="bg-muted p-space-4 rounded-md">
+            <p className="text-sm">Stumbles</p>
+            <p className="text-2xl font-bold">{historyCount}</p>
+          </div>
+          <div className="bg-muted p-space-4 rounded-md">
+            <p className="text-sm">Favorites</p>
+            <p className="text-2xl font-bold">{favoritesCount}</p>
+          </div>
+        </div>
+        <Button variant="destructive" onClick={onLogout} className="mt-space-4">
           Logout
-        </button>
-      </div>
-    </div>
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 }
