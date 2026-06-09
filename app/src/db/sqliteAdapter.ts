@@ -241,11 +241,11 @@ export class SqliteAdapter implements IStoragePort {
       .prepare(
         `
       SELECT * FROM assets 
-      WHERE LOWER(title) LIKE ? OR LOWER(description) LIKE ? 
+      WHERE LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(url) LIKE ? 
       LIMIT 20
     `,
       )
-      .all(q, q);
+      .all(q, q, q);
     return rows.map((r) => this.mapRowToAsset(r as AssetRow));
   }
 

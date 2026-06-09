@@ -62,3 +62,59 @@ describe("SqliteAdapter - Auth & Profiles", () => {
     // This is implicitly tested by save_user/find_user above
   });
 });
+
+describe("SqliteAdapter - Asset Search", () => {
+  let adapter: SqliteAdapter;
+  const dbPath = "test_search.db";
+
+  beforeEach(() => {
+    adapter = new SqliteAdapter(dbPath);
+  });
+
+  afterEach(() => {
+    if (fs.existsSync(dbPath)) {
+      fs.unlinkSync(dbPath);
+    }
+  });
+
+  it("should search assets by title, description, and URL", async () => {
+    await adapter.saveAsset({
+      id: "1",
+      url: "https://javascript.info",
+      title: "JS Guide",
+      description: "Learn JS here",
+      source: "Manual",
+      category: "Tech",
+      created_at: new Date(),
+    });
+    await adapter.saveAsset({
+      id: "2",
+      url: "https://python.org",
+      title: "Python Docs",
+      description: "About Python",
+      source: "Manual",
+      category: "Tech",
+      created_at: new Date(),
+    });
+    await adapter.saveAsset({
+      id: "3",
+      url: "https://example.com/js-notes",
+      title: "My Notes",
+      description: "Javascript notes included",
+      source: "Manual",
+      category: "Personal",
+      created_at: new Date(),
+    });
+
+    const byTitle = await adapter.searchAssets("JS Guide");
+    expect(byTitle).toHaveLength(1);
+    expect(byTitle[0].id).toBe("1");
+
+    const byDesc = await adapter.searchAssets("Javascript");
+    expect(byDesc).toHaveLength(2); // ID 1 and 3
+
+    const byUrl = await adapter.searchAssets("python.org");
+    expect(byUrl).toHaveLength(1);
+    expect(byUrl[0].id).toBe("2");
+  });
+});
