@@ -69,6 +69,41 @@ blank pages), and a 16:9 auto-embed **video mode** for YouTube/embeddable source
 (#115, #120). Plus from the UX evaluation: **search drives the discovery view**
 (#119), rating-toast feedback (#122), and a spacebar = next shortcut (#123).
 
+## Sprint 6: Discovery Engine Quality (In Progress)
+
+Driven by a structured **product evaluation** of the stumble experience (30-stumble
+protocol, stopped early at #16). Findings: delight rate **0%**, disaster rate **81%**,
+repeat rate **38%** (first repeat at stumble #4), and a "something is wrong" trust-break
+by #16. Root causes: a tiny corpus (~17 assets) of homepage URLs the reader can't
+extract, duplicate rows, and session dedup that the backend supported but the UI never
+sent. Sprint closes those gaps.
+
+| ID    | Story                                            | Size | Status         |
+| ----- | ------------------------------------------------ | ---- | -------------- |
+| S6-01 | Dedup asset URLs (UNIQUE + conflict-safe upsert) | S    | Done (PR #148) |
+| S6-02 | Raise stumble quality floor                      | L    | Done (PR #150) |
+| S6-03 | Session dedup + graceful exhaustion              | M    | Done (PR #151) |
+
+S6-01 (#145, junior `gemini-ready`): `UNIQUE(url)` on `assets`, `saveAsset` upsert via
+`ON CONFLICT(url)` preserving `rating`/`created_at`, plus a migration that collapses
+existing duplicate-url rows. Removes the triplicated Atlas / doubled YouTube rows that
+inflated both repetition and weighted-random odds.
+
+S6-02 (#146): replaced the 4 homepage seeds (HN/Reddit/Colossal/APOD roots, which
+reader-first can't extract → blank cards) with 8 deep-link, reader-friendly article
+permalinks; added an **article-gate** (`assetGate.ts`, reuses `extractReadable`) so only
+videos or extractable pages enter rotation; and made live-fetch **eager** so the corpus
+grows toward a target pool instead of stalling at the cold-start threshold.
+
+S6-03 (#147): the UI (`useStumble.ts`) now tracks seen asset IDs and sends them as the
+`history` param the backend already filtered on — no within-session repeats — resetting
+on category change. Backend no longer throws when the pool is exhausted: it tries one
+live fetch, then falls back to the full pool, erroring (503) only on a genuinely empty
+corpus.
+
+**Next:** re-run the 30-stumble protocol (eval session 2) to verify the targets —
+repeat rate <5%, disaster <40%, delight >10%, broken-renders ≈0.
+
 ### Backlog
 
 - [ ] "Stumble of the Day" Email (Email Co-Pilot Integration)
