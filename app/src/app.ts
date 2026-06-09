@@ -10,6 +10,7 @@ import { DiscoveryController } from "./controllers/discoveryController.js";
 import { SubmissionController } from "./controllers/submissionController.js";
 import { ProxyController } from "./controllers/proxyController.js";
 import { ReaderController } from "./controllers/readerController.js";
+import { PreviewController } from "./controllers/previewController.js";
 import { healthCheck } from "./controllers/healthController.js";
 import { authenticateJWT } from "./middleware/auth.js";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
@@ -104,6 +105,7 @@ export async function createApp() {
   const submissionController = new SubmissionController(storage);
   const proxyController = new ProxyController();
   const readerController = new ReaderController();
+  const previewController = new PreviewController();
   // Routes
   const v1Router = express.Router();
 
@@ -180,6 +182,7 @@ export async function createApp() {
   v1Router.post("/seed", discoveryController.seed);
   v1Router.get("/proxy", authenticateJWT, proxyController.proxy);
   v1Router.get("/reader", authenticateJWT, readerController.read);
+  v1Router.get("/preview", authenticateJWT, previewController.read);
 
   // Submission routes
   v1Router.post(
