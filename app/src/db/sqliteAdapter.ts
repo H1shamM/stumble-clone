@@ -56,7 +56,7 @@ export class SqliteAdapter implements IStoragePort {
       );
       CREATE TABLE IF NOT EXISTS assets (
         id TEXT PRIMARY KEY,
-        url TEXT NOT NULL,
+        url TEXT NOT NULL UNIQUE,
         title TEXT NOT NULL,
         description TEXT,
         source TEXT NOT NULL,
@@ -121,6 +121,14 @@ export class SqliteAdapter implements IStoragePort {
     ).map((c) => c.name);
     if (!ratingsCols.includes("user_id"))
       this.db.exec("ALTER TABLE ratings ADD COLUMN user_id TEXT");
+
+    // Dedup existing assets
+    this.db.exec(`
+      DELETE FROM assets WHERE id NOT IN (
+        SELECT MIN(id) FROM assets GROUP BY url
+      );
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_assets_url ON assets(url);
+    `);
   }
 
   private mapRowToAsset(row: AssetRow): StumbleAsset {
@@ -162,8 +170,14 @@ export class SqliteAdapter implements IStoragePort {
     this.db
       .prepare(
         `
-      INSERT OR REPLACE INTO assets (id, url, title, description, source, category, rating, created_at, last_visited_at)
+      INSERT INTO assets (id, url, title, description, source, category, rating, created_at, last_visited_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(url) DO UPDATE SET
+        title=excluded.title,
+        description=excluded.description,
+        source=excluded.source,
+        category=excluded.category,
+        last_visited_at=excluded.last_visited_at
     `,
       )
       .run(
