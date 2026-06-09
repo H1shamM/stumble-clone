@@ -6,6 +6,8 @@ yarn-error.log*
 
 # Database
 *.db
+*.db-wal
+*.db-shm
 *.sqlite
 *.sqlite3
 
@@ -30,6 +32,7 @@ coverage/
 # Playwright
 .playwright-mcp/
 playwright-report/
+test-results/
 
 # IDE
 .vscode/

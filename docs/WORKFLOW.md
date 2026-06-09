@@ -66,7 +66,7 @@ Append a scope if helpful (e.g., feat(api):, fix(ui):).
 
 - Monday: review backlog, create issues for the week’s tasks, estimate size (S/M/L).
 - Daily: work on tasks, keep PROGRESS.md current.
-- Friday: write a sprint report (following the SPRINT_REPORTS.md template), celebrate wins.
+- Friday: review what shipped, update PROGRESS.md, celebrate wins.
 
 ## Tools
 
