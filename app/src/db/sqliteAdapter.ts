@@ -176,7 +176,7 @@ export class SqliteAdapter implements IStoragePort {
 
   // Asset methods
   async getAssetById(id: string): Promise<StumbleAsset | null> {
-    const row = this.db.prepare("SELECT id, url, title, description, source, category, rating, type, created_at, last_visited_at FROM assets WHERE id = ?").get(id);
+    const row = this.db.prepare("SELECT * FROM assets WHERE id = ?").get(id);
     return row ? this.mapRowToAsset(row as AssetRow) : null;
   }
 
@@ -218,7 +218,7 @@ export class SqliteAdapter implements IStoragePort {
   }
 
   async getAllAssets(category: string): Promise<StumbleAsset[]> {
-    let query = "SELECT id, url, title, description, source, category, rating, type, created_at, last_visited_at FROM assets WHERE 1=1 ";
+    let query = "SELECT * FROM assets WHERE 1=1 ";
     const params: string[] = [];
     if (category !== "all") {
       query += "AND category = ? ";
@@ -240,7 +240,7 @@ export class SqliteAdapter implements IStoragePort {
     const rows = this.db
       .prepare(
         `
-      SELECT id, url, title, description, source, category, rating, type, created_at, last_visited_at FROM assets 
+      SELECT * FROM assets 
       WHERE LOWER(title) LIKE ? OR LOWER(description) LIKE ? OR LOWER(url) LIKE ? 
       LIMIT 20
     `,
@@ -450,7 +450,7 @@ export class SqliteAdapter implements IStoragePort {
     interests: string[],
     exclude_ids: string[],
   ): Promise<StumbleAsset | null> {
-    let query = "SELECT id, url, title, description, source, category, rating, type, created_at, last_visited_at FROM assets WHERE 1=1 ";
+    let query = "SELECT * FROM assets WHERE 1=1 ";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const params: any[] = [];
     if (interests.length) {
