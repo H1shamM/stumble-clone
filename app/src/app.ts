@@ -36,6 +36,7 @@ import { LobstersSource } from "./sources/lobsters.js";
 import { XkcdSource } from "./sources/xkcd.js";
 import { DesignGallerySource } from "./sources/designgallery.js";
 import { ScienceWebSource } from "./sources/scienceweb.js";
+import { WibySource } from "./sources/wiby.js";
 import type { User } from "./models/user.js";
 
 export async function createApp() {
@@ -93,6 +94,7 @@ export async function createApp() {
     new XkcdSource(),
     new DesignGallerySource(),
     new ScienceWebSource(),
+    new WibySource(),
   ];
   const discoveryService = new DiscoveryService(storage, sources);
 
