@@ -11,6 +11,7 @@ export interface StumbleResult {
   description?: string;
   category: string;
   source: string;
+  type?: "article" | "image" | "video" | "interactive";
 }
 
 export function useStumble(

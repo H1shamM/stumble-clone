@@ -97,4 +97,43 @@ describe("StumbleArea reader-first hybrid", () => {
     expect(screen.getByTitle("Stumbled page")).toBeInTheDocument();
     expect(fetch).not.toHaveBeenCalled();
   });
+
+  it("defaults image stumbles to the live view (no reader extraction)", () => {
+    const fetch = vi.fn();
+    render(
+      <StumbleArea
+        {...baseProps}
+        current={{ ...current, type: "image" }}
+        authenticatedFetch={fetch}
+      />,
+    );
+    expect(screen.getByTitle("Stumbled page")).toBeInTheDocument();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("defaults interactive stumbles to the live view (no reader extraction)", () => {
+    const fetch = vi.fn();
+    render(
+      <StumbleArea
+        {...baseProps}
+        current={{ ...current, type: "interactive" }}
+        authenticatedFetch={fetch}
+      />,
+    );
+    expect(screen.getByTitle("Stumbled page")).toBeInTheDocument();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("still defaults article stumbles to the reader view", async () => {
+    render(
+      <StumbleArea
+        {...baseProps}
+        current={{ ...current, type: "article" }}
+        authenticatedFetch={makeFetch()}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByText("Reader body")).toBeInTheDocument(),
+    );
+  });
 });

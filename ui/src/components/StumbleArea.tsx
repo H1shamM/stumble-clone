@@ -16,6 +16,8 @@ import { ViewModeToggle, type ViewMode } from "./ViewModeToggle";
 import { useReader } from "../hooks/useReader";
 import type { AuthenticatedFetch } from "../types";
 
+type ContentType = "article" | "image" | "video" | "interactive";
+
 interface StumbleResult {
   id: string;
   url: string;
@@ -24,6 +26,27 @@ interface StumbleResult {
   description?: string;
   category: string;
   source: string;
+  type?: ContentType;
+}
+
+/** Videos render in the embedded player (type, or an /embed/ proxyUrl as a fallback signal). */
+function isVideoStumble(
+  c: Pick<StumbleResult, "type" | "proxyUrl"> | null,
+): boolean {
+  return c?.type === "video" || !!c?.proxyUrl?.includes("/embed/");
+}
+
+/** Image galleries and interactive sites lose their value in stripped reader mode. */
+function isVisualStumble(c: Pick<StumbleResult, "type"> | null): boolean {
+  return c?.type === "image" || c?.type === "interactive";
+}
+
+/**
+ * Content-type-aware default: prose (article / unknown) opens in reader; video,
+ * image, and interactive content open live so their visuals/playback survive.
+ */
+function defaultMode(c: StumbleResult | null): ViewMode {
+  return isVideoStumble(c) || isVisualStumble(c) ? "live" : "reader";
 }
 
 interface StumbleAreaProps {
@@ -56,26 +79,27 @@ export function StumbleArea({
   onIframeLoad,
 }: StumbleAreaProps) {
   const [isVisible, setIsVisible] = useState(import.meta.env.MODE === "test");
-  const [viewMode, setViewMode] = useState<ViewMode>(() =>
-    current?.proxyUrl?.includes("/embed/") ? "live" : "reader",
-  );
+  const [viewMode, setViewMode] = useState<ViewMode>(() => defaultMode(current));
   const [prevId, setPrevId] = useState<string | undefined>(current?.id);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Video stumbles (e.g. YouTube) carry an embeddable proxyUrl — show them in
-  // the live player by default instead of attempting a reader extraction.
-  const isVideo = !!current?.proxyUrl?.includes("/embed/");
+  // Video plays in the embedded player; image/interactive content shows live so
+  // its visuals survive — neither should be sent through reader extraction.
+  const isVideo = isVideoStumble(current);
+  const isVisual = isVisualStumble(current);
 
   // Reset the view mode whenever a new page is stumbled (adjusting state during
   // render — the documented pattern for syncing state to a prop change).
   if (current?.id !== prevId) {
     setPrevId(current?.id);
-    setViewMode(isVideo ? "live" : "reader");
+    setViewMode(defaultMode(current));
   }
 
-  // Fetch reader content for the current page while in reader mode (null = no-op).
+  // Fetch reader content only for prose pages in reader mode (null = no-op).
   const readerUrl =
-    showIframe && current && viewMode === "reader" && !isVideo ? current.url : null;
+    showIframe && current && viewMode === "reader" && !isVideo && !isVisual
+      ? current.url
+      : null;
   const reader = useReader(authenticatedFetch, readerUrl);
 
   useEffect(() => {
@@ -141,7 +165,8 @@ export function StumbleArea({
   }
 
   if (showIframe && current) {
-    const showReader = viewMode === "reader" && !reader.error && !isVideo;
+    const showReader =
+      viewMode === "reader" && !reader.error && !isVideo && !isVisual;
     const iframeSrc = isVisible
       ? current.proxyUrl || current.url
       : "about:blank";
