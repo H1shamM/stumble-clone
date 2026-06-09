@@ -12,8 +12,10 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { ReaderView } from "./ReaderView";
+import { PreviewCard } from "./PreviewCard";
 import { ViewModeToggle, type ViewMode } from "./ViewModeToggle";
 import { useReader } from "../hooks/useReader";
+import { usePreview } from "../hooks/usePreview";
 import type { AuthenticatedFetch } from "../types";
 
 type ContentType = "article" | "image" | "video" | "interactive";
@@ -102,6 +104,10 @@ export function StumbleArea({
       : null;
   const reader = useReader(authenticatedFetch, readerUrl);
 
+  // Image/interactive content can't be embedded — fetch a preview card instead.
+  const previewUrl = showIframe && current && isVisual ? current.url : null;
+  const preview = usePreview(authenticatedFetch, previewUrl);
+
   useEffect(() => {
     if (import.meta.env.MODE === "test") return;
 
@@ -189,7 +195,9 @@ export function StumbleArea({
               {current.category} · {current.source}
             </p>
           </div>
-          <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+          {!isVisual && (
+            <ViewModeToggle mode={viewMode} onChange={setViewMode} />
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -211,7 +219,15 @@ export function StumbleArea({
         </Card>
 
         {/* Content */}
-        {showReader ? (
+        {isVisual ? (
+          <PreviewCard
+            url={current.url}
+            fallbackTitle={current.title}
+            fallbackDescription={current.description}
+            preview={preview.data}
+            loading={preview.loading}
+          />
+        ) : showReader ? (
           reader.data ? (
             <div className="max-h-[72vh] overflow-y-auto">
               <ReaderView

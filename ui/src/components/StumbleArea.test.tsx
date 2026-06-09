@@ -98,8 +98,20 @@ describe("StumbleArea reader-first hybrid", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("defaults image stumbles to the live view (no reader extraction)", () => {
-    const fetch = vi.fn();
+  const previewResult = {
+    title: "Preview Title",
+    description: "A preview.",
+    image: "https://cdn.test/card.png",
+    siteName: "Test",
+    favicon: null,
+  };
+
+  function makePreviewFetch() {
+    return vi.fn().mockResolvedValue({ ok: true, json: async () => previewResult });
+  }
+
+  it("renders a preview card (not an iframe or reader) for image stumbles", async () => {
+    const fetch = makePreviewFetch();
     render(
       <StumbleArea
         {...baseProps}
@@ -107,12 +119,19 @@ describe("StumbleArea reader-first hybrid", () => {
         authenticatedFetch={fetch}
       />,
     );
-    expect(screen.getByTitle("Stumbled page")).toBeInTheDocument();
-    expect(fetch).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.getByText(/open the site/i)).toBeInTheDocument(),
+    );
+    // No embedded iframe for un-iframable content.
+    expect(screen.queryByTitle("Stumbled page")).not.toBeInTheDocument();
+    // It hit /preview, never /reader.
+    const calledUrls = fetch.mock.calls.map((c) => c[0] as string);
+    expect(calledUrls.some((u) => u.startsWith("/preview"))).toBe(true);
+    expect(calledUrls.some((u) => u.startsWith("/reader"))).toBe(false);
   });
 
-  it("defaults interactive stumbles to the live view (no reader extraction)", () => {
-    const fetch = vi.fn();
+  it("renders a preview card for interactive stumbles", async () => {
+    const fetch = makePreviewFetch();
     render(
       <StumbleArea
         {...baseProps}
@@ -120,8 +139,10 @@ describe("StumbleArea reader-first hybrid", () => {
         authenticatedFetch={fetch}
       />,
     );
-    expect(screen.getByTitle("Stumbled page")).toBeInTheDocument();
-    expect(fetch).not.toHaveBeenCalled();
+    await waitFor(() =>
+      expect(screen.getByText(/open the site/i)).toBeInTheDocument(),
+    );
+    expect(screen.queryByTitle("Stumbled page")).not.toBeInTheDocument();
   });
 
   it("still defaults article stumbles to the reader view", async () => {
