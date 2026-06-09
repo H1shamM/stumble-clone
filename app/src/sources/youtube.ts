@@ -24,9 +24,13 @@ export class YoutubeSource implements ContentFetcher {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async fetchStumble(category: string): Promise<StumbleAsset | null> {
     const id = this.videoIds[Math.floor(Math.random() * this.videoIds.length)];
+    const url = `https://www.youtube.com/watch?v=${id}`;
+    const proxyUrl = `https://www.youtube.com/embed/${id}`;
+
     return {
       id: crypto.randomUUID(),
-      url: `https://www.youtube.com/embed/${id}`,
+      url,
+      proxyUrl,
       title: "YouTube Video",
       description: "A random video.",
       source: "YouTube",

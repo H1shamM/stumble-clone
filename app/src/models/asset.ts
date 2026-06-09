@@ -8,6 +8,7 @@ export const StumbleAssetSchema = z.object({
   source: z.string().min(1),
   category: z.string().min(1),
   rating: z.number().default(0),
+  proxyUrl: z.string().url().optional(),
   created_at: z.date(),
   last_visited_at: z.date().optional(),
 });
