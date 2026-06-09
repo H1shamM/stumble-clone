@@ -1,0 +1,25 @@
+ #!/usr/bin/env bash
+  # Autonomous junior loop for stumble-clone. Run from a shell where GH_TOKEN is set
+  # (your ~/.zshrc already exports it). Ctrl-C to stop.
+  set -uo pipefail
+  cd "$(dirname "$(readlink -f "$0")")"
+
+  : "${GH_TOKEN:?Set GH_TOKEN (it's in your ~/.zshrc) before running}"
+
+  PROMPT='Follow GEMINI.md exactly. Do ONE pass of your session loop, then stop:
+  1) git checkout master && git pull
+  2) If an open PR you authored has a review requesting changes: switch to its branch, read it via `gh pr view <n>
+  --comments`, apply the changes, run the gates (cd ui && npm run lint && npm test, or cd app), commit on the same
+  branch, push. Then stop.
+  3) Else if you have NO open PR: take the lowest-numbered open issue labeled gemini-ready assigned to you, implement it
+  (only the files it lists), run the gates green, commit on a feat/ branch, push, open a PR with Closes #N. Then stop.
+  4) If you have an open PR still awaiting review, or nothing to do: print NOTHING-TO-DO and stop.
+  Never push to master. Never merge. One PR at a time.'
+
+  while true; do
+    echo "================ $(date) ================"
+    gemini -y -p "$PROMPT" 2>&1 | tee -a junior-loop.log
+    echo "---- sleeping 4 min ----"
+    sleep 240
+  done
+
