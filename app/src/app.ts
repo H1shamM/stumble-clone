@@ -33,6 +33,7 @@ import { GitHubTrendingSource } from "./sources/github_trending.js";
 import { MediumSource } from "./sources/medium.js";
 import { LobstersSource } from "./sources/lobsters.js";
 import { XkcdSource } from "./sources/xkcd.js";
+import { DesignGallerySource } from "./sources/designgallery.js";
 import type { User } from "./models/user.js";
 
 export async function createApp() {
@@ -88,6 +89,7 @@ export async function createApp() {
     new MediumSource(),
     new LobstersSource(),
     new XkcdSource(),
+    new DesignGallerySource(),
   ];
   const discoveryService = new DiscoveryService(storage, sources);
 
