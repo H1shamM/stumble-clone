@@ -25,11 +25,24 @@ export function useStumble(
   const [iframeError, setIframeError] = useState(false);
   const iframeLoadedRef = useRef(false);
   const iframeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // IDs shown this session, sent as `history` so the backend never re-serves
+  // them. Reset when the category changes (a different pool).
+  const seenIdsRef = useRef<string[]>([]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setNextStumble(null);
+    seenIdsRef.current = [];
   }, [category]);
+
+  const markSeen = useCallback((id: string) => {
+    if (id && !seenIdsRef.current.includes(id)) seenIdsRef.current.push(id);
+  }, []);
+
+  const historyParam = useCallback(() => {
+    const seen = seenIdsRef.current;
+    return seen.length ? `&history=${encodeURIComponent(seen.join(","))}` : "";
+  }, []);
 
   const clearIframeTimeout = useCallback(() => {
     if (iframeTimeoutRef.current) {
@@ -65,7 +78,9 @@ export function useStumble(
 
   const prefetchNext = useCallback(async () => {
     try {
-      const res = await authenticatedFetch(`/stumble?category=${category}`);
+      const res = await authenticatedFetch(
+        `/stumble?category=${category}${historyParam()}`,
+      );
       if (!res.ok) return;
       const data = await res.json();
       data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
@@ -74,11 +89,12 @@ export function useStumble(
       console.debug("Prefetch failed", err);
       setNextStumble(null);
     }
-  }, [category, authenticatedFetch]);
+  }, [category, authenticatedFetch, historyParam]);
 
   const fetchStumble = useCallback(async () => {
     // If we have a pre-fetched next stumble, use it
     if (nextStumble) {
+      markSeen(nextStumble.id);
       setCurrent(nextStumble);
       setShowIframe(true);
       setLoading(false);
@@ -99,7 +115,9 @@ export function useStumble(
     clearIframeTimeout();
 
     try {
-      const res = await authenticatedFetch(`/stumble?category=${category}`);
+      const res = await authenticatedFetch(
+        `/stumble?category=${category}${historyParam()}`,
+      );
       if (!res.ok) {
         const text = await res.text();
         throw new Error(
@@ -114,6 +132,7 @@ export function useStumble(
 
       // Add proxy URL
       data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
+      markSeen(data.id);
       setCurrent(data);
       setShowIframe(true);
       startIframeTimeout();
@@ -133,6 +152,8 @@ export function useStumble(
     startIframeTimeout,
     nextStumble,
     prefetchNext,
+    markSeen,
+    historyParam,
   ]);
 
   const handleClose = useCallback(() => {

@@ -42,10 +42,28 @@ export class DiscoveryService {
       void this.backgroundTopUp(category);
     }
 
-    const availableAssets = assets.filter(
+    let availableAssets = assets.filter(
       (a: StumbleAsset) => !history.includes(a.id),
     );
-    if (availableAssets.length === 0) throw new Error("No assets found");
+
+    // Session pool exhausted: the user has already seen everything. Try to grow
+    // the corpus once, then fall back to the full pool — never a hard error.
+    if (availableAssets.length === 0) {
+      const fresh = await this.fetchFromLiveSources(category);
+      if (fresh) {
+        await this.storage.saveAsset(fresh);
+        assets = await this.storage.getAllAssets(category);
+        availableAssets = assets.filter(
+          (a: StumbleAsset) => !history.includes(a.id),
+        );
+      }
+      // Still nothing unseen: reset to the full pool rather than throwing.
+      if (availableAssets.length === 0) availableAssets = assets;
+    }
+
+    // Only truly empty when the corpus has no assets at all and live fetch failed.
+    if (availableAssets.length === 0)
+      throw new AppError("No content available right now", 503);
 
     const weightedAssets = availableAssets.map((asset: StumbleAsset) => {
       let weight = 1;
