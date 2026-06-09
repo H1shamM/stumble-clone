@@ -84,7 +84,11 @@ export function useStumble(
       );
       if (!res.ok) return;
       const data = await res.json();
-      data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
+      if (data.type !== "video" && !data.url.includes("/embed/")) {
+        data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
+      } else {
+        data.proxyUrl = data.url;
+      }
       setNextStumble(data);
     } catch (err) {
       console.debug("Prefetch failed", err);
@@ -132,7 +136,11 @@ export function useStumble(
       }
 
       // Add proxy URL
-      data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
+      if (data.type !== "video" && !data.url.includes("/embed/")) {
+        data.proxyUrl = `${API_BASE}/proxy?url=${encodeURIComponent(data.url)}`;
+      } else {
+        data.proxyUrl = data.url;
+      }
       markSeen(data.id);
       setCurrent(data);
       setShowIframe(true);

@@ -196,7 +196,15 @@ export function StumbleArea({
             asChild
             aria-label="Open in new tab"
           >
-            <a href={current.url} target="_blank" rel="noopener noreferrer">
+            <a
+              href={
+                isVideo && current.url.includes("/embed/")
+                  ? current.url.replace("/embed/", "/watch?v=")
+                  : current.url
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <ExternalLink />
             </a>
           </Button>
