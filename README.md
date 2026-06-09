@@ -15,7 +15,7 @@ StumbleClone aims to provide a fast, reliable, and serendipitous discovery engin
 | Feature                     | Description                                              |
 | :-------------------------- | :------------------------------------------------------- |
 | **Serendipitous Discovery** | Weighted-random engine with URL dedup, per-session dedup, and per-source cooldown for variety. |
-| **In-App Reading**          | Reader-first view extracts & sanitizes the article; **type-aware rendering** (article → reader, video → player, image/interactive → live). |
+| **In-App Reading**          | Reader-first view extracts & sanitizes the article; **type-aware rendering** (article → reader, video → player, image/interactive → preview card). |
 | **PWA Native Feel**         | Installable, offline-capable, and mobile-optimized.      |
 | **Social Auth**             | Secure, seamless login via Google or GitHub (OAuth2).    |
 | **Community Driven**        | Users can submit high-quality links for moderation.      |

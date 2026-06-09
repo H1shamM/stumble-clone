@@ -124,7 +124,7 @@ clustering (Bored Panda 3×) + reader stripping image-rich sites. Floor solved; 
 Verdict: **the engine works; the bottleneck is content + rendering, not the algorithm.** Delight
 stayed ~0 because the pool is dull and visual content won't display.
 
-## Sprint 7: Content & Rendering v2 (Planned — epic #169)
+## Sprint 7: Content & Rendering v2 (In Progress — epic #169)
 
 The delight gap is a **content + rendering** problem. Competitive research (Cloudhiker's ~30k
 hand-reviewed sites / 19 channels; Viralwalk "Flows" & TheRandomWeb "Preview Mode" using
@@ -132,15 +132,42 @@ screenshot previews; Discuvver/Useless Web open-in-tab) confirms: curated librar
 and nobody iframes arbitrary sites. **Platform direction:** the real target is a **mobile app**
 (web = prototype); in-app browsing is a native WebView, not a web iframe (Capacitor as the bridge).
 
-| ID    | Story                                                       | Size | Status            |
-| ----- | ----------------------------------------------------------- | ---- | ----------------- |
-| S7-01 | Fix video player (direct `/embed/`, not `/proxy`)           | S    | Todo (#170, bot)  |
-| S7-02 | Rebalance seed pool (cap any source at ~2)                  | S    | Todo (#171)       |
-| S7-03 | Render-by-type + screenshot-preview fallback                | L    | Todo (#172)       |
-| S7-04 | Curated channel content library + submission pipeline       | XL   | Todo (#173)       |
+| ID    | Story                                                       | Size | Status                  |
+| ----- | ----------------------------------------------------------- | ---- | ----------------------- |
+| S7-01 | Fix video player (direct `/embed/`, not `/proxy`)           | S    | Done (PR #176)          |
+| S7-02 | Rebalance seed pool (cap any source at ~2)                  | S    | Done (PR #175)          |
+| S7-03 | Render-by-type + screenshot-preview cards                   | L    | Done (PR #177)          |
+| S7-04 | Curated channel content library (24 items, 8 channels)      | XL   | Done — incr. 1 (PR #178)|
 
-**Success criteria (re-run the protocol, session 4):** format mix >30%, delight >15%, max
-same-domain ≤2, broken-renders → 0, first interest-dip materially later than #7.
+S7-03 (#172): `image`/`interactive` stumbles render a **preview card** (og:image + title +
+"Open the site"), not a blank iframe — via `previewService` + `GET /api/v1/preview` + the
+`usePreview`/`PreviewCard` UI. S7-04 (#173): a 24-item curated library across 8 channels
+(`channel` column); remaining increment = promote `/submissions` into the library.
+
+## Eval session 4 (the breakthrough)
+
+First session the product **delighted**. Same 30-stumble protocol, wrapped at #20 (findings
+converged). vs. all prior sessions: broken renders ~0, disaster ~0%, **format mix ~67%**, max
+same-domain 2, **first churn: none** — and the **first firm "I'll definitely share this"** in four
+sessions (Windows 93), plus ~47% "maybe send" and three user-generated product ideas. The one
+open metric — **firm delight (~5%)** — has a single diagnosed cause the user stated repeatedly:
+*"without a good preview I won't click, I won't share."* Sites with a rich `og:image` landed; bare
+ones (neal.fun, Windows 93, APOD, video) under-sold great content. **Verdict: the engine + content
+are right; the conversion lever is preview-image quality.**
+
+## Sprint 7 — session-5 backlog (from eval 4)
+
+| Issue | Story | Owner |
+| ----- | ----------------------------------------------------------- | ------ |
+| #179  | Screenshot/thumbnail backstop for preview cards (the lever) | senior |
+| #180  | Video thumbnail cards + more video seeds                    | gemini |
+| #181  | Persist session dedup history to `sessionStorage`          | gemini |
+| #182  | Render APOD / image+caption pages in reader                | gemini |
+| #183  | `WibySource` content fetcher (Indie & Classic Web)         | gemini |
+| #184  | Reader enrichment — AI visual explainers (the delight bet) | senior |
+
+**Session-5 success criterion:** firm-send (delight) rate **> 20%** (the "maybe sends" converting
+once previews are rich), video plays/previews, zero "bare preview image" complaints.
 
 ### Backlog
 

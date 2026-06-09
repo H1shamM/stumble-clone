@@ -6,13 +6,16 @@ viewing is live, and the **discovery engine has been hardened** (URL dedup, cont
 gate, session dedup, source cooldown, type-aware rendering). Sprints 5–6 are complete —
 see `docs/PROGRESS.md`.
 
-**Current focus — Content & Rendering v2 (Sprint 7, epic #169).** Three structured
-product-eval sessions proved the *engine* works but **delight is still ~0%**: the content
-pool is thin/dull and non-article content won't render (you can't iframe the arbitrary web).
-The real target is a **mobile app** (web is the prototype); "browse the site inside the app"
-is a native-WebView capability, not a web iframe. Direction: curated channel library +
-render-by-type with a **screenshot-preview** fallback. See the eval findings in PROGRESS
-and the platform/content memory notes.
+**Current focus — Content & Rendering v2 (Sprint 7, epic #169).** Four structured product-eval
+sessions proved the *engine* was never the problem — content + rendering were. Sprint 7 fixed
+that: a **24-item curated library across 8 channels** (#173), **render-by-type with preview
+cards** for un-iframable content (#172), the **video embed fix** (#176), and the seed rebalance
+(#175). **Session 4 delighted for the first time** (first firm "I'll share this", ~67% format
+mix, zero churn). The one open lever is **preview-image quality** — bare cards under-sell great
+content; the session-5 backlog (#179 screenshot backstop, #180 video thumbnails, #181–184) is
+about converting "maybe send" → "send". The real target is a **mobile app** (web is the
+prototype); "browse the site inside the app" is a native-WebView capability, not a web iframe.
+See PROGRESS and the platform/content memory notes.
 
 ## Layout (monorepo)
 
@@ -67,7 +70,9 @@ prevent duplicate rows.
 `type` (`article | image | video | interactive`; nullable `type` column). `classifyAsset` tags it —
 videos (`/embed/`) and known visual/interactive sources pass without article extraction; unknown
 pages must extract (`extractReadable`) to be servable. This replaced the old article-only boolean
-gate that flattened everything into a reading list.
+gate that flattened everything into a reading list. The cold-start pool is a **curated library**
+(`bootstrap.ts` `DEFAULT_SEED_ASSETS`): 24 hand-picked items across 8 **channels** (nullable
+`channel` column) — source-capped (≤2) and format-diverse (eval-session 3/4 lessons).
 
 **Reader** (`readerService.ts` + `readerController.ts`): `GET /api/v1/reader?url=` extracts the main
 article with `@mozilla/readability` (jsdom), **sanitizes** (`sanitize-html`), in-memory cached,
@@ -75,11 +80,13 @@ rejects thin/<400-char extractions; 422 when not article-like, never 500. SSRF g
 `utils/urlGuard.ts`.
 
 **Rendering** (`StumbleArea.tsx`, type-aware, #154): `article` → reader (`ReaderView` + `useReader`);
-`video` → 16:9 live player; `image`/`interactive` → live (visuals preserved, not stripped reader).
-A **Reader/Live `ViewModeToggle`** overrides; a "reader unavailable" card shows on extraction
-failure (no blank pages). **Known gap (Sprint 7):** the "Live" iframe still routes through `/proxy`,
-which black-screens YouTube and can't show un-iframable sites — being replaced by direct embeds +
-screenshot-preview cards (#170, #172).
+`video` → 16:9 player using the **direct `/embed/`** URL (#176, not `/proxy`); `image`/`interactive`
+→ a **preview card** (#172) — `PreviewCard` + `usePreview` + `GET /api/v1/preview` extracts
+og:image/title/description, so un-iframable sites show a real card (title + image + "Open the site"),
+never a blank iframe. A **Reader/Live `ViewModeToggle`** overrides for articles; a "reader
+unavailable" card shows on extraction failure. **Open lever (session 5):** sites without an
+`og:image` get a bare card — a real screenshot backstop (#179) is the top conversion fix; videos
+get thumbnail cards (#180).
 
 Search (`App.tsx`) drives the main view: results show in StumbleArea, Next cycles them, Exit returns
 to random. Spacebar = next; rating shows a toast.
