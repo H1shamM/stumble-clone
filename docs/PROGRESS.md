@@ -165,10 +165,38 @@ are right; the conversion lever is preview-image quality.**
 | #182  | Render APOD / image+caption pages in reader                | gemini | Done (PR #188) |
 | #183  | `WibySource` content fetcher (Indie & Classic Web)         | gemini | Done (PR #186) |
 | #141  | Search matches description + case-insensitive               | gemini | Done (PR #166) |
-| #184  | Reader enrichment — AI visual explainers (the delight bet) | senior | Backend slice done (PR #191); next: reader UI toggle |
+| #184  | Reader enrichment — AI visual explainers (the delight bet) | senior | Done (PR #191 backend, #196 hook/panel, #198 toggle); Tier-1 reel PR #203 |
 
 **Session-5 success criterion:** firm-send (delight) rate **> 20%** (the "maybe sends" converting
 once previews are rich), video plays/previews, zero "bare preview image" complaints.
+
+## Eval session 5 (the constraint moved)
+
+Ran post-backlog (#184 enrichment shipped: PR #191/#196/#198). **Stopped at #4 — by boredom, not
+breakage.** That's the headline: the floor and the explainer are *solved*; the binding constraint
+moved to **corpus size + targeting**.
+
+**What's now working (don't touch):** rendering is clean — *"a couple of previews… better than the
+sessions before,"* zero blank/broken cards across all 4. The **AI explainer (the delight bet) is
+validated** as a *decision-aid*: *"the reader gets an insight before reading the full content, so he
+can decide"* — it converted a skip→read on the Voynich Wikipedia page (*"definitely won't read the
+original, but I read the summary"*) and let the user decide "not for me" in ~10s on a Paul Graham
+essay. Verdict on the explainer: *"good to see a summary before reading — for sure I'll keep it."*
+
+**The new #1 constraint (it ended the session):** corpus familiarity. *"I can't complete the session
+because of the boredom… reseed with totally new sites, 100+ if we can."* 26 seeds × 5 sessions =
+fatigue; this now outranks all rendering/explainer polish (#204). Send rate was 0/4 — but **none were
+quality or render failures**; they were *boredom* and *topic-mismatch* (*"good, but I'm not interested
+in art, nor are my friends"* — a targeting gap, #206), not disasters.
+
+**The roadmap ceiling (captured):** the explainer text is a strong v1, but the user's real vision is
+visual — *"an app of itself: take an article, explain it in animation + slides like Kurzgesagt."*
+→ built **Tier 1: the animated explainer reel** (#202/PR #203) — scene script from the same cached
+call, Framer-Motion slides, ~$0 extra (switched the summarizer to **Haiku 4.5** for cost). Tiers 2
+(browser-TTS narration, $0) and 3 (generated art, $$) are deferred on #202.
+
+**Session-5 findings → issues:** #204 (corpus → 100+ diverse/rotating — the blocker), #205 (weak
+explainer image on text-only articles), #206 (interest-fit targeting), #202 (the reel, shipped).
 
 ### Backlog
 
