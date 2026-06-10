@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CATEGORIES, Category } from "./categories";
+import { CATEGORIES, type Category } from "./categories";
 import { useState } from "react";
 
 interface MobileNavProps {

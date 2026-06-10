@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES, Category } from "./categories";
+import { CATEGORIES, type Category } from "./categories";
 import { Compass, Download } from "lucide-react";
 
 interface SidebarProps {
