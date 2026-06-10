@@ -1,5 +1,5 @@
 // ui/src/components/Header.tsx
-import { Search, Sun, Moon, User, LogOut } from "lucide-react";
+import { Search, Sun, Moon, User, LogOut, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -23,6 +23,9 @@ interface HeaderProps {
   searchQuery: string;
   onSearchQueryChange: (q: string) => void;
   onSearchSubmit: (e: React.FormEvent) => void;
+  category: string;
+  onCategoryChange: (cat: string) => void;
+  categories: { value: string; label: string }[];
 }
 
 /**
@@ -38,9 +41,34 @@ export function Header({
   searchQuery,
   onSearchQueryChange,
   onSearchSubmit,
+  category,
+  onCategoryChange,
+  categories,
 }: HeaderProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-border bg-background/80 px-4 py-3 backdrop-blur-md sm:px-6">
+      {/* Category selector (mobile only) */}
+      <div className="lg:hidden">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Compass className="size-4" />
+              {categories.find((c) => c.value === category)?.label || "Browse"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {categories.map((cat) => (
+              <DropdownMenuItem
+                key={cat.value}
+                onClick={() => onCategoryChange(cat.value)}
+              >
+                {cat.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
       {/* Search */}
       <form onSubmit={onSearchSubmit} className="relative max-w-md flex-1">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />

@@ -1,23 +1,7 @@
-import {
-  Compass,
-  Cpu,
-  Palette,
-  FlaskConical,
-  Dices,
-  Download,
-} from "lucide-react";
+import { Compass, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-
-type Category = "all" | "tech" | "art" | "science" | "random";
-
-const CATEGORIES: { value: Category; label: string; icon: typeof Compass }[] = [
-  { value: "all", label: "Discover", icon: Compass },
-  { value: "tech", label: "Tech", icon: Cpu },
-  { value: "art", label: "Art", icon: Palette },
-  { value: "science", label: "Science", icon: FlaskConical },
-  { value: "random", label: "Random", icon: Dices },
-];
+import { CATEGORIES, Category } from "../constants";
 
 interface SidebarProps {
   category: Category;

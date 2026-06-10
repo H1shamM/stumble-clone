@@ -31,6 +31,9 @@ describe("Header", () => {
         searchQuery=""
         onSearchQueryChange={vi.fn()}
         onSearchSubmit={vi.fn()}
+        category="all"
+        onCategoryChange={vi.fn()}
+        categories={[{ value: "all", label: "Discover" }]}
       />
     );
 
@@ -42,5 +45,26 @@ describe("Header", () => {
     const profileButtons = screen.getAllByRole("button", { name: /Profile/i });
     fireEvent.click(profileButtons[0]);
     expect(onUserClick).toHaveBeenCalled();
+  });
+
+  it("renders category selector for mobile", () => {
+    render(
+      <Header
+        darkMode={false}
+        setDarkMode={vi.fn()}
+        user={null}
+        onUserClick={vi.fn()}
+        onLogout={vi.fn()}
+        searchQuery=""
+        onSearchQueryChange={vi.fn()}
+        onSearchSubmit={vi.fn()}
+        category="all"
+        onCategoryChange={vi.fn()}
+        categories={[{ value: "all", label: "Discover" }]}
+      />
+    );
+    // Should be able to find the Browse/Discover button
+    const discoverButtons = screen.getAllByText("Discover");
+    expect(discoverButtons[0]).toBeInTheDocument();
   });
 });

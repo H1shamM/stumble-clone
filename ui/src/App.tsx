@@ -7,6 +7,7 @@ import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useTheme } from "./hooks/useTheme";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
+import { CATEGORIES } from "./constants";
 import { AuthModal } from "./components/AuthModal";
 import { ProfileModal } from "./components/ProfileModal";
 import { StumbleArea } from "./components/StumbleArea";
@@ -225,6 +226,9 @@ export function App() {
             searchQuery={searchQuery}
             onSearchQueryChange={setSearchQuery}
             onSearchSubmit={handleSearch}
+            category={category}
+            onCategoryChange={setCategory}
+            categories={CATEGORIES.map((c) => ({ value: c.value, label: c.label }))}
           />
 
           {networkError && (
