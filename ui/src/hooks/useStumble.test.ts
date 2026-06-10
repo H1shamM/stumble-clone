@@ -40,7 +40,7 @@ describe("useStumble", () => {
   const makeFetchMock = () => {
     let n = 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return vi.fn((_url: string) =>
+    return vi.fn((_url: string): Promise<Response> =>
       Promise.resolve({
         ok: true,
         json: async () => ({

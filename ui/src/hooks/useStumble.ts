@@ -26,9 +26,8 @@ export function useStumble(
   const [iframeError, setIframeError] = useState(false);
   const iframeLoadedRef = useRef(false);
   const iframeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // IDs shown this session, sent as `history` so the backend never re-serves
-  // them. Reset when the category changes (a different pool).
   const seenIdsRef = useRef<string[]>([]);
+  const prevCategory = useRef(category);
   const storageKey = `stumble:seen:${category}`;
 
   // Initialize from storage on mount (once)
@@ -39,17 +38,18 @@ export function useStumble(
     } catch {
       seenIdsRef.current = [];
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
+  }, [storageKey]);
 
   useEffect(() => {
-    // Reset when category changes
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Reset when category actually changes
+    if (prevCategory.current === category) return;
+    prevCategory.current = category;
+
+     
     setNextStumble(null);
     seenIdsRef.current = [];
     sessionStorage.removeItem(storageKey);
-  }, [category]);
+  }, [category, storageKey]);
 
   const markSeen = useCallback((id: string) => {
     if (id && !seenIdsRef.current.includes(id)) {
