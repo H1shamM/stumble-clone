@@ -49,7 +49,7 @@ export function useStumble(
     setNextStumble(null);
     seenIdsRef.current = [];
     sessionStorage.removeItem(storageKey);
-  }, [category, storageKey]);
+  }, [category]);
 
   const markSeen = useCallback((id: string) => {
     if (id && !seenIdsRef.current.includes(id)) {
