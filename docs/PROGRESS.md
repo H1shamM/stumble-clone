@@ -165,7 +165,7 @@ are right; the conversion lever is preview-image quality.**
 | #182  | Render APOD / image+caption pages in reader                | gemini | Done (PR #188) |
 | #183  | `WibySource` content fetcher (Indie & Classic Web)         | gemini | Done (PR #186) |
 | #141  | Search matches description + case-insensitive               | gemini | Done (PR #166) |
-| #184  | Reader enrichment — AI visual explainers (the delight bet) | senior | In progress — backend slice (PR #191, open) |
+| #184  | Reader enrichment — AI visual explainers (the delight bet) | senior | Backend slice done (PR #191); next: reader UI toggle |
 
 **Session-5 success criterion:** firm-send (delight) rate **> 20%** (the "maybe sends" converting
 once previews are rich), video plays/previews, zero "bare preview image" complaints.
