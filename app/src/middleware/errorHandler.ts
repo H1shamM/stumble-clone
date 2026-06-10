@@ -40,15 +40,15 @@ export const errorHandler = (
   // Send response
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
-      error: err.message,
+      error: err.isOperational ? err.message : "Internal server error",
       statusCode: err.statusCode,
     });
   } else {
-    // Don't leak internal errors in production
+    // Don't leak internal errors unless in development
     const message =
-      process.env.NODE_ENV === "production"
-        ? "Internal server error"
-        : err.message;
+      process.env.NODE_ENV === "development"
+        ? err.message
+        : "Internal server error";
     res.status(500).json({
       error: message,
       statusCode: 500,
