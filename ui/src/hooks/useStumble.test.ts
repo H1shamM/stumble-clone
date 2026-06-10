@@ -116,9 +116,10 @@ describe("useStumble", () => {
 
     expect(JSON.parse(sessionStorage.getItem("stumble:seen:test")!)).toContain("1");
     
-    // Remount
+    // Remount the hook in the same category (e.g. after a page reload).
     unmount();
-    
+    fetchMock.mockClear();
+
     const { result: result2 } = renderHook(() => useStumble(fetchMock, "test"));
     
     // The history param should already contain the seen ID from sessionStorage
@@ -128,7 +129,12 @@ describe("useStumble", () => {
       await result2.current.fetchStumble();
     });
     
-    const lastUrl = decodeURIComponent(fetchMock.mock.calls.at(-1)![0]);
-    expect(lastUrl).toMatch(/history=(1|3)/);
+    // Restored from sessionStorage: the *very first* request after remount must
+    // already carry the previously-seen id, so the backend won't re-serve it.
+    // A regression to load-then-clear would send "/stumble?category=test" with
+    // no history and fail this assertion.
+    const firstUrlAfterRemount = decodeURIComponent(fetchMock.mock.calls[0][0]);
+    expect(firstUrlAfterRemount).toContain("history=");
+    expect(firstUrlAfterRemount).toContain("1");
   });
 });
