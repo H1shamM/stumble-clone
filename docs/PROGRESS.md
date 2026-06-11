@@ -210,21 +210,20 @@ Formalizing + hardening the rushed v0 explainer into the planned architecture (`
 | B4 | `GET /api/v1/explainer` endpoint | senior | Done (PR #237) |
 | F1 | `useExplainer` hook (rename `useEnrichment` → `/explainer`) | senior | Done (merged) |
 | F2 | SceneReel → oklch design tokens | gemini | Done (PR #227) |
-| F3 | Explainer as 3rd ViewModeToggle mode | senior | Todo (#222 — needs F1) |
+| F3 | Explainer as 3rd ViewModeToggle mode | senior | Done (PR #245) |
 | F4 | Explainer skeleton + unavailable card (`ExplainerState.tsx`) | gemini | Done (PR #231) |
 | P1 | Prefetch next stumble's explainer | senior | Todo (#224 — needs B4✓ + F1) |
 | P2 | Explainer feedback + format-mix telemetry | gemini | Todo (#225 — needs F3; first attempt #232 closed) |
 
-**Where we left off (handoff):** B1/B3/B4 (backend) + F2/F4 (frontend components) are merged.
-`GET /api/v1/explainer` is live (`ExplainerService` → adapter), with an in-memory draft cache;
-**B2 (#217)** swaps in the SQLite `ExplainerRepo` (bot, in progress). The old `/reader/enrich`
-(`enrichmentController` + `enrichReader`) is still wired and is what the frontend's `useEnrichment`
-hook currently hits — **F1 (#220, senior, in progress)** renames it to `useExplainer` pointing at
-`/explainer`, after which `/reader/enrich` + `enrichmentController` + `enrichReader` are dead and get
-removed. Then **F3 (#222)** promotes the Explainer from the in-reader sub-toggle to a true 3rd
-ViewModeToggle mode (wiring `SceneReel` + `ExplainerState`), unblocking **P1 (#224)** prefetch and
-**P2 (#225)** telemetry. Bot recurring pitfalls seen this epic: branching off stale master + mixing
-multiple issues per PR (closed #229/#230/#232) — keep each bot PR to one issue off current master.
+**Where we left off (handoff):** B1/B3/B4 (backend) + F1/F2/F3/F4 (frontend) are merged.
+`GET /api/v1/explainer` is live (`ExplainerService` → adapter) and the UI hits it via `useExplainer`.
+**F3 (#245)** promoted the Explainer to a true 3rd `ViewModeToggle` mode (Reader / Live / Explainer,
+article-only, **default Reader, opt-in**); the old in-reader enriched/original sub-toggle + `readerView`
+state are gone. **Remaining:** **B2 (#217)** swaps the in-memory draft cache for the SQLite
+`ExplainerRepo` (bot, in progress); **P1 (#224, senior)** prefetches the next stumble's explainer;
+**P2 (#225, gemini)** — now **unblocked by F3** — adds Explainer feedback + format-mix telemetry.
+Bot recurring pitfalls seen this epic: branching off stale master + mixing multiple issues per PR
+(closed #229/#230/#232) — keep each bot PR to one issue off current master.
 
 B1 (#216): tone-aware `EXPLAINER_PROMPT` + `PROMPT_VERSION` in `prompts/`; adapter moved to
 `adapters/`; `ExplainerTruncatedError` on `max_tokens` (never parses a partial), try/catch →
