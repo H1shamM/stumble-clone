@@ -11,7 +11,7 @@ import { SubmissionController } from "./controllers/submissionController.js";
 import { ProxyController } from "./controllers/proxyController.js";
 import { ReaderController } from "./controllers/readerController.js";
 import { PreviewController } from "./controllers/previewController.js";
-import { EnrichmentController } from "./controllers/enrichmentController.js";
+import { ExplainerController } from "./controllers/explainerController.js";
 import { ClaudeExplainer } from "./adapters/claudeExplainer.js";
 import type { ExplainerLLM } from "./services/enrichmentService.js";
 import { healthCheck } from "./controllers/healthController.js";
@@ -121,7 +121,7 @@ export async function createApp() {
       return null;
     }
   })();
-  const enrichmentController = new EnrichmentController(explainer);
+  const explainerController = new ExplainerController(explainer);
   // Routes
   const v1Router = express.Router();
 
@@ -198,7 +198,7 @@ export async function createApp() {
   v1Router.post("/seed", discoveryController.seed);
   v1Router.get("/proxy", authenticateJWT, proxyController.proxy);
   v1Router.get("/reader", authenticateJWT, readerController.read);
-  v1Router.get("/reader/enrich", authenticateJWT, enrichmentController.read);
+  v1Router.get("/explainer", authenticateJWT, explainerController.explain);
   v1Router.get("/preview", authenticateJWT, previewController.read);
 
   // Submission routes
