@@ -199,7 +199,7 @@ export function App() {
 
   return (
     <ErrorBoundary>
-      <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex min-h-screen bg-background text-foreground pt-(--safe-top) pb-(--safe-bottom) pl-(--safe-left) pr-(--safe-right)">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 rounded-md bg-primary px-3 py-2 text-primary-foreground"

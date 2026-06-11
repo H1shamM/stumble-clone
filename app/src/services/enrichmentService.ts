@@ -8,7 +8,9 @@
  * enrichment never breaks plain reading.
  */
 
+import { JSDOM } from "jsdom";
 import type { ReaderResult } from "./readerService.js";
+import { screenshotUrl, extractPreview } from "./previewService.js";
 
 /** One slide of the explainer reel: a beat with a heading, body, and emoji. */
 export interface ExplainerScene {
@@ -47,10 +49,56 @@ export interface EnrichmentResult extends EnrichmentDraft {
 const cache = new Map<string, EnrichmentResult>();
 const CACHE_LIMIT = 200;
 
-/** Pull the first absolute `<img src>` out of sanitized reader HTML. */
+/**
+ * Pull the first high-quality absolute <img src> out of sanitized reader HTML.
+ * Junk-filters irrelevant small assets (logos, icons, spacers).
+ */
 export function firstImage(html: string): string | null {
-  const match = html.match(/<img[^>]+src="(https?:\/\/[^"]+)"/i);
-  return match?.[1] ?? null;
+  // Use JSDOM to properly parse attributes and junk-filter
+  const dom = new JSDOM(html);
+  const doc = dom.window.document;
+  const imgs = Array.from(doc.querySelectorAll("img"));
+
+  for (const img of imgs) {
+    const src = img.getAttribute("src");
+    if (!src || !src.startsWith("http")) continue;
+
+    const lowerSrc = src.toLowerCase();
+    const isJunkUrl = ["logo", "icon", "avatar", "spacer"].some((j) =>
+      lowerSrc.includes(j),
+    );
+    if (isJunkUrl) continue;
+
+    const widthStr = img.getAttribute("width");
+    const heightStr = img.getAttribute("height");
+    const width = widthStr ? parseInt(widthStr) : 999;
+    const height = heightStr ? parseInt(heightStr) : 999;
+    if (width <= 32 || height <= 32) continue;
+
+    return src;
+  }
+
+  return null;
+}
+
+/**
+ * Shared helper to pick the best hero image for an article.
+ * Fallback order: article <img> → page og:image → screenshot backstop.
+ */
+export function resolveHeroImage(
+  articleHtml: string,
+  url: string,
+  rawHtml?: string,
+): string {
+  const best = firstImage(articleHtml);
+  if (best) return best;
+
+  if (rawHtml) {
+    // extractPreview handles og:image → twitter:image → screenshotUrl(url)
+    return extractPreview(rawHtml, url).image || screenshotUrl(url);
+  }
+
+  return screenshotUrl(url);
 }
 
 function hostname(url: string): string {
@@ -90,8 +138,10 @@ export async function enrichReader(
   const result: EnrichmentResult = {
     summary: draft.summary.trim(),
     keyPoints: (draft.keyPoints ?? []).filter((p) => p?.trim()),
-    scenes: (draft.scenes ?? []).filter((s) => s?.heading?.trim() && s?.body?.trim()),
-    image: firstImage(reader.content),
+    scenes: (draft.scenes ?? []).filter(
+      (s) => s?.heading?.trim() && s?.body?.trim(),
+    ),
+    image: resolveHeroImage(reader.content, url),
     provenance: `AI summary of ${reader.siteName || hostname(url)}`,
     sourceUrl: url,
   };
