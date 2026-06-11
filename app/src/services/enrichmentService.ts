@@ -10,7 +10,7 @@
 
 import { JSDOM } from "jsdom";
 import type { ReaderResult } from "./readerService.js";
-import { screenshotUrl } from "./previewService.js";
+import { screenshotUrl, extractPreview } from "./previewService.js";
 
 /** One slide of the explainer reel: a beat with a heading, body, and emoji. */
 export interface ExplainerScene {
@@ -81,6 +81,26 @@ export function firstImage(html: string): string | null {
   return null;
 }
 
+/**
+ * Shared helper to pick the best hero image for an article.
+ * Fallback order: article <img> → page og:image → screenshot backstop.
+ */
+export function resolveHeroImage(
+  articleHtml: string,
+  url: string,
+  rawHtml?: string,
+): string {
+  const best = firstImage(articleHtml);
+  if (best) return best;
+
+  if (rawHtml) {
+    // extractPreview handles og:image → twitter:image → screenshotUrl(url)
+    return extractPreview(rawHtml, url).image || screenshotUrl(url);
+  }
+
+  return screenshotUrl(url);
+}
+
 function hostname(url: string): string {
   try {
     return new URL(url).hostname.replace(/^www\./, "");
@@ -99,7 +119,6 @@ export async function enrichReader(
   reader: ReaderResult,
   url: string,
   llm: ExplainerLLM,
-  rawHtml?: string,
 ): Promise<EnrichmentResult | null> {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -116,42 +135,13 @@ export async function enrichReader(
 
   if (!draft?.summary?.trim()) return null;
 
-  // Image selection sequence:
-  // 1. First high-quality image from the article content.
-  // 2. The page's own og:image (from rawHtml if provided).
-  // 3. Fallback to a live screenshot backstop.
-  let image = firstImage(reader.content);
-
-  if (!image && rawHtml) {
-    try {
-      const doc = new JSDOM(rawHtml).window.document;
-      const og =
-        doc.querySelector('meta[property="og:image"]')?.getAttribute("content") ||
-        doc.querySelector('meta[property="og:image:url"]')?.getAttribute("content") ||
-        doc.querySelector('meta[name="twitter:image"]')?.getAttribute("content");
-      if (og) {
-        try {
-          image = new URL(og, url).href;
-        } catch {
-          // ignore invalid URLs
-        }
-      }
-    } catch {
-      // ignore parse errors
-    }
-  }
-
-  if (!image) {
-    image = screenshotUrl(url);
-  }
-
   const result: EnrichmentResult = {
     summary: draft.summary.trim(),
     keyPoints: (draft.keyPoints ?? []).filter((p) => p?.trim()),
     scenes: (draft.scenes ?? []).filter(
       (s) => s?.heading?.trim() && s?.body?.trim(),
     ),
-    image,
+    image: resolveHeroImage(reader.content, url),
     provenance: `AI summary of ${reader.siteName || hostname(url)}`,
     sourceUrl: url,
   };
