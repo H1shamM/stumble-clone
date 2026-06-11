@@ -1,14 +1,14 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { useEnrichment } from "./useEnrichment";
+import { useExplainer } from "./useExplainer";
 import { cleanup } from "@testing-library/react";
 
 afterEach(cleanup);
 
-describe("useEnrichment", () => {
+describe("useExplainer", () => {
   it("returns null data and no error when url is null", async () => {
     const fetchMock = vi.fn();
-    const { result } = renderHook(() => useEnrichment(fetchMock, null));
+    const { result } = renderHook(() => useExplainer(fetchMock, null));
 
     expect(result.current.data).toBeNull();
     expect(result.current.loading).toBe(false);
@@ -30,29 +30,29 @@ describe("useEnrichment", () => {
     });
     const url = "http://target.com";
 
-    const { result } = renderHook(() => useEnrichment(fetchMock, url));
+    const { result } = renderHook(() => useExplainer(fetchMock, url));
 
     expect(result.current.loading).toBe(true);
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(fetchMock).toHaveBeenCalledWith(`/reader/enrich?url=${encodeURIComponent(url)}`);
+    expect(fetchMock).toHaveBeenCalledWith(`/explainer?url=${encodeURIComponent(url)}`);
     expect(result.current.data).toEqual(mockData);
     expect(result.current.error).toBeNull();
   });
 
-  it("sets error on non-OK response", async () => {
+  it("handles 422 as not available", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: false,
       status: 422,
     });
     const url = "http://target.com";
 
-    const { result } = renderHook(() => useEnrichment(fetchMock, url));
+    const { result } = renderHook(() => useExplainer(fetchMock, url));
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     expect(result.current.data).toBeNull();
-    expect(result.current.error).toBe("Enrichment unavailable");
+    expect(result.current.error).toBeNull();
   });
 });

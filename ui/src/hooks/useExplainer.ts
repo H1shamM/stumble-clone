@@ -1,27 +1,18 @@
 import { useState, useEffect } from "react";
 
-/** One slide of the explainer reel. */
-export interface ExplainerScene {
-  heading: string;
-  body: string;
-  emoji: string;
-}
-
-export interface EnrichmentResult {
+export interface ExplainerResult {
   summary: string;
   keyPoints: string[];
-  /** Slides for the animated explainer reel (the "wow" view). */
-  scenes: ExplainerScene[];
   image: string | null;
   provenance: string;
   sourceUrl: string;
 }
 
-export function useEnrichment(
+export function useExplainer(
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>,
   url: string | null
 ) {
-  const [data, setData] = useState<EnrichmentResult | null>(null);
+  const [data, setData] = useState<ExplainerResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,14 +29,17 @@ export function useEnrichment(
     setLoading(true);
     setError(null);
 
-    authenticatedFetch(`/reader/enrich?url=${encodeURIComponent(url)}`)
+    authenticatedFetch(`/explainer?url=${encodeURIComponent(url)}`)
       .then(async (res) => {
         if (!active) return;
         if (res.ok) {
           const json = await res.json();
           setData(json);
+        } else if (res.status === 422) {
+          setData(null);
+          setError(null);
         } else {
-          setError("Enrichment unavailable");
+          setError("Explainer unavailable");
         }
       })
       .catch(() => {
