@@ -55,6 +55,10 @@ export async function createApp() {
         "http://localhost:5173",
         "http://localhost:5174",
         "http://localhost:3000",
+        // Capacitor native WebView origins (Android http scheme + iOS/default).
+        "http://localhost",
+        "https://localhost",
+        "capacitor://localhost",
       ],
       credentials: true,
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
