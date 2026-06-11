@@ -14,8 +14,11 @@ import type { ReaderResult } from "./readerService.js";
 export interface ExplainerScene {
   heading: string;
   body: string;
-  /** A single emoji that illustrates this beat (zero-cost visual). */
-  emoji: string;
+  /**
+   * A single emoji illustrating this beat (zero-cost visual). Optional — somber
+   * subjects omit it rather than forcing a cheerful glyph.
+   */
+  emoji?: string;
 }
 
 export interface EnrichmentDraft {

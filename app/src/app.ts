@@ -12,7 +12,7 @@ import { ProxyController } from "./controllers/proxyController.js";
 import { ReaderController } from "./controllers/readerController.js";
 import { PreviewController } from "./controllers/previewController.js";
 import { EnrichmentController } from "./controllers/enrichmentController.js";
-import { ClaudeExplainer } from "./services/claudeExplainer.js";
+import { ClaudeExplainer } from "./adapters/claudeExplainer.js";
 import type { ExplainerLLM } from "./services/enrichmentService.js";
 import { healthCheck } from "./controllers/healthController.js";
 import { authenticateJWT } from "./middleware/auth.js";
