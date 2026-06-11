@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import Database from "better-sqlite3";
-import { SqliteExplainerRepo } from "../../../app/src/repositories/explainerRepo.js";
-import { EnrichmentResult } from "../../../app/src/services/enrichmentService.js";
+import { SqliteExplainerRepo } from "../../../app/src/repositories/explainerRepo";
+import { EnrichmentResult } from "../../../app/src/services/enrichmentService";
 
 describe("SqliteExplainerRepo", () => {
   let db: Database.Database;

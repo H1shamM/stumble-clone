@@ -431,6 +431,17 @@ export async function ensureDevUser(storage: IStoragePort): Promise<void> {
 }
 
 export async function seedDefaultAssets(storage: IStoragePort): Promise<void> {
+  const db = (storage as any).db;
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS explainer_cache (
+      url TEXT,
+      prompt_version TEXT,
+      draft_json TEXT,
+      created_at INTEGER,
+      PRIMARY KEY(url, prompt_version)
+    )
+  `);
+
   for (const asset of DEFAULT_SEED_ASSETS) {
     await storage.saveAsset({
       ...asset,
