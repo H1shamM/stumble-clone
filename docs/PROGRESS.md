@@ -241,11 +241,12 @@ the app (native WebView, not an iframe).
 | ID | Story | Owner | Status |
 | -- | ----- | ----- | ------ |
 | S1 | Capacitor scaffold, run existing UI on Android | senior | Done (PR #242) |
-| S2 | Native WebView spike (GO/NO-GO on real device) | senior | **PASS** — validated on a physical device via M2 (#250) |
+| S2 | Native WebView spike (GO/NO-GO on real device) | senior | **PASS** — validated on device via M2 (#250 closed) |
 | M1.1 | Config: icons, splash, status bar | gemini→senior | Done (PR #258 — senior generated the assets; bot source PNGs were empty) |
 | M1.2 | Dev live-reload + documented cap build loop | gemini | Done (PR #256) |
 | M1.3 | Safe-area insets + full-bleed stumble view | gemini | Done (PR #261) |
-| M2 | Browse un-iframable sites in a native in-app WebView | senior | Done (PR #263) — `useBrowse` + `@capacitor/inappbrowser` |
+| M2 | Browse un-iframable sites in a native in-app WebView | senior | Done (PR #263 / #270) — `useBrowse` + `@capacitor/inappbrowser` |
+| M3.1 | Swipe-up-to-next + always-visible mobile Next | senior | Done (PR #269 / #271) — scroll-aware `useSwipe` |
 
 **Where we left off:** Phases 0–2 are shipped and **running on a real Android device**. S1 scaffold
 (Capacitor v8), M1.1–M1.3 shell (branded indigo icon/splash, status bar, dev loop, safe-area), and
@@ -261,9 +262,15 @@ reverse`); `capacitor.config.ts` uses `androidScheme: http` + `cleartext` and ba
 (`CAP_BUILD=1`, #264) so reinstalls aren't served a stale bundle. Build a device APK with
 `VITE_API_URL=… CAP_BUILD=1`. AGP 9 build fix in #259.
 
-**Next:** **M3** (swipe-up/down stumble gestures via Framer Motion) and then **M4** — the
-content-safety gate (automated NSFW/spam classification + report/block), which is a **launch blocker**
-before any store/public release (both core features expose raw web). M5 = store readiness.
+**M3.1** (swipe-up = next, scroll-aware; + a fixed mobile "Skip to next" so long articles don't need
+scrolling to the action bar) is merged. **Open mobile bugs/follow-ups from device testing:** #275
+(WebView serves a stale bundle after `adb install -r` — clean uninstall+install needed for now), #266
+(reader hard to read in dark mode), #267 (persistent nav for Favorites/History/Recs), #268 (more
+content across genres).
+
+**Next:** **M3.2/M3.3** (haptics + slide transition; swipe-down=previous; optional swipe-rate) →
+**M4** — the content-safety gate (automated NSFW/spam classification + report/block), a **launch
+blocker** before any store/public release (both core features expose raw web) → **M5** store readiness.
 Remaining explainer-epic polish is all merged (B1–B4, F1–F4, P1, P2).
 
 ### Backlog
