@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
 import { assertPublicHttpUrl } from "../utils/urlGuard.js";
 import { AppError } from "../middleware/errorHandler.js";
+import type { AuthenticatedRequest } from "../middleware/auth.js";
 import {
   ExplainerService,
   NotArticleError,
 } from "../services/explainerService.js";
+import { DiscoveryService } from "../services/discoveryService.js";
 import {
   ExplainerTruncatedError,
   ExplainerUnavailableError,
@@ -17,7 +19,10 @@ import {
  * LLM failure; **never 500** (the UI falls back to the plain reader view).
  */
 export class ExplainerController {
-  constructor(private readonly service: ExplainerService | null) {}
+  constructor(
+    private readonly service: ExplainerService | null,
+    private readonly discoveryService: DiscoveryService,
+  ) {}
 
   read = async (req: Request, res: Response): Promise<void> => {
     const targetUrl = req.query.url as string | undefined;
@@ -48,5 +53,13 @@ export class ExplainerController {
       // Any other failure (network, extraction, parse) — surface as 503, never 500.
       throw new AppError("Explainer temporarily unavailable", 503);
     }
+  };
+
+  rate = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+    const { assetId, isPositive } = req.body;
+    const userId = req.user_id;
+    if (!userId) throw new AppError("Unauthorized", 401);
+    await this.discoveryService.rate(assetId, isPositive, userId);
+    res.sendStatus(204);
   };
 }

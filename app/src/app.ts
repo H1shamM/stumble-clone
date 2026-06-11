@@ -137,7 +137,10 @@ export async function createApp() {
         cache: new SqliteExplainerRepo(storage.db),
       })
     : null;
-  const explainerController = new ExplainerController(explainerService);
+  const explainerController = new ExplainerController(
+    explainerService,
+    discoveryService,
+  );
   // Routes
   const v1Router = express.Router();
 
@@ -216,6 +219,7 @@ export async function createApp() {
   v1Router.get("/reader", authenticateJWT, readerController.read);
   v1Router.get("/reader/enrich", authenticateJWT, enrichmentController.read);
   v1Router.get("/explainer", authenticateJWT, explainerController.read);
+  v1Router.post("/explainer/rate", authenticateJWT, explainerController.rate);
   v1Router.get("/preview", authenticateJWT, previewController.read);
 
   // Submission routes
