@@ -18,7 +18,7 @@ import { extractReadable } from "./readerService.js";
 import type { ReaderResult } from "./readerService.js";
 import { PROMPT_VERSION } from "../prompts/explainerPrompt.js";
 import {
-  firstImage,
+  resolveHeroImage,
   type EnrichmentDraft,
   type EnrichmentResult,
   type ExplainerLLM,
@@ -113,7 +113,7 @@ export class ExplainerService {
       scenes: (draft.scenes ?? []).filter(
         (s) => s?.heading?.trim() && s?.body?.trim(),
       ),
-      image: firstImage(article.content),
+      image: resolveHeroImage(article.content, url, html),
       provenance: `AI summary of ${article.siteName || hostname(url)}`,
       sourceUrl: url,
     };
