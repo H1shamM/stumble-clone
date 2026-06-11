@@ -7,6 +7,8 @@ import {
 } from "../../../app/src/services/explainerService";
 import { ExplainerUnavailableError } from "../../../app/src/adapters/claudeExplainer";
 import { AppError } from "../../../app/src/middleware/errorHandler";
+import type { AuthenticatedRequest } from "../../../app/src/middleware/auth";
+import { DiscoveryService } from "../../../app/src/services/discoveryService";
 
 const URL = "https://en.wikipedia.org/wiki/Tardigrade";
 
@@ -78,5 +80,48 @@ describe("ExplainerController.read (#219)", () => {
     await expect(ctrl.read(makeReq(URL), makeRes())).rejects.toMatchObject({
       statusCode: 503,
     });
+  });
+});
+
+const makeRateReq = (body: unknown, userId?: string): AuthenticatedRequest =>
+  ({ body, user_id: userId }) as unknown as AuthenticatedRequest;
+
+const makeRateRes = () => ({ sendStatus: vi.fn() }) as unknown as Response;
+
+const fakeDiscovery = () => {
+  const rate = vi.fn(async () => {});
+  return { service: { rate } as unknown as DiscoveryService, rate };
+};
+
+describe("ExplainerController.rate (#225)", () => {
+  it("feeds discoveryService prefs and 204s", async () => {
+    const { service, rate } = fakeDiscovery();
+    const ctrl = new ExplainerController(null, service);
+    const res = makeRateRes();
+
+    await ctrl.rate(
+      makeRateReq({ assetId: "a1", isPositive: true }, "u1"),
+      res,
+    );
+
+    expect(rate).toHaveBeenCalledWith("a1", true, "u1");
+    expect(res.sendStatus).toHaveBeenCalledWith(204);
+  });
+
+  it("401 when unauthenticated", async () => {
+    const { service } = fakeDiscovery();
+    const ctrl = new ExplainerController(null, service);
+    await expect(
+      ctrl.rate(makeRateReq({ assetId: "a1", isPositive: true }), makeRateRes()),
+    ).rejects.toMatchObject({ statusCode: 401 });
+  });
+
+  it("400 on an invalid body (missing/!boolean fields)", async () => {
+    const { service, rate } = fakeDiscovery();
+    const ctrl = new ExplainerController(null, service);
+    await expect(
+      ctrl.rate(makeRateReq({ assetId: "a1" }, "u1"), makeRateRes()),
+    ).rejects.toMatchObject({ statusCode: 400 });
+    expect(rate).not.toHaveBeenCalled();
   });
 });
