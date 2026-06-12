@@ -250,7 +250,10 @@ the app (native WebView, not an iframe).
 | BV0 | Spike: live site inline via webview-overlay (GO/NO-GO) | senior | **PASS** on device (#279) |
 | BV1 | Live feed ("Reels") — inline live-site discovery | senior | Done (PR #281 / #280) — `LiveFeed` + `@teamhive/capacitor-webview-overlay` |
 | BV2.1 | Reels polish: loading bar, snapshot swap, prominent entry | senior | Done (PR #285 / #283) |
-| Reels-first | Mobile = full app shell, live site inline (no separate mode) | senior | **In progress on PR #296** — see ⏯️ RESUME HERE |
+| Reels-first | Mobile = full app shell, live site inline (no separate mode) | senior | Done (PR #296) |
+| BV2.2 | Reader toggle inside the Live feed (articles) | senior | Done (PR #304 / #284) |
+| Immersive | Hide-chrome toggle: live site full-screen + restore strip | senior | Done (PR #296 follow-up) |
+| Render v2 | Mobile-friendly normalization + cosmetic ad/popup hiding | senior | Done (PR #296 follow-up) |
 
 > **Browse v2 (epic #278) is the product breakthrough** — "reels of live websites", device-tested as
 > delightful. The plugin `@teamhive/capacitor-webview-overlay` is productionized: `ui/.npmrc`
@@ -279,40 +282,41 @@ which conflicts). Prefer a clean `adb uninstall` + `install` when swapping build
 
 ---
 
-### ⏯️ RESUME HERE — Reels-first mobile (epic #295), PR #296 (NOT yet merged)
+### ⏯️ RESUME HERE — Browse v2 reels-first, core loop SHIPPED (all on master)
 
-The mobile model was reframed by the tester: **on native there is NO separate "reel mode" — mobile *is*
-the full app, and the live website renders INLINE in the content area.** The header (search / ☰ menu /
-dark / account) stays above it and is always available; the rate/favorite/Next bar is below; there is no
-exit button. The card + reader view is **web-only**.
+The mobile model (tester-confirmed): **on native there is NO separate "reel mode" — mobile *is* the full
+app, and the live website renders INLINE in the content area.** The header (search / ☰ menu / dark /
+account) stays above it and is always available; the rate/favorite/Next bar is below; no exit button. The
+card + reader view is **web-only**. **All merged to master** — there is no open reels branch; work off
+`master`. `ui/src/components/LiveFeed.tsx` is the surface; build/install to a device via the
+[[mobile-device-dev-setup]] memory (LAN-IP `VITE_API_URL` + `CAP_BUILD=1`, SDK adb).
 
-**All of this lives on branch `feat/reels-default-native` / PR #296.** `git checkout feat/reels-default-native`
-to continue. **It is held for the user's on-device validation before merge** (master still has the
-pre-reels-first, opt-in version). #296 contains:
-- **reels is the native default** — `isNativeReels` in `App.tsx` renders `LiveFeed` filling `main`;
-- **swipe-up handle + haptics** (`ui/src/hooks/useHaptics.ts`, `@capacitor/haptics`);
-- **scroll fix** — dropped the `toggleSnapshot` freeze that could leave a frozen, unscrollable page;
-- **mobile-friendly rendering** — phone user-agent + forced `width=device-width` viewport (re-applied via
-  `evaluateJavaScript` after every load) for old/non-responsive sites;
-- **full-app-shell rewrite** — `LiveFeed` is inline (not a fixed overlay), no exit/menu/dark chrome (the
-  real header handles those);
-- **layering fix** — the native WebView renders above all React UI, so menus/modals were trapped behind
-  it; `ui/src/hooks/useAnyOverlayOpen.ts` (watches the body for `[role=dialog|menu|listbox|alertdialog]`)
-  drives a `paused` prop that hides the native view (`toggleSnapshot`) while any overlay is open.
+**Shipped (LiveFeed + App.tsx):**
+- **#296** — reels is the native default (`isNativeReels` in `App.tsx` renders `LiveFeed` filling `main`);
+  swipe-up handle + haptics (`useHaptics`); scroll fix (dropped the `toggleSnapshot` freeze);
+  full-app-shell inline rewrite; layering fix (`useAnyOverlayOpen` → `paused` prop hides the native view
+  while any `[role=dialog|menu|listbox|alertdialog]` is open).
+- **Immersive toggle** — a Maximize control hides the header + action bar so the live site fills the
+  screen; the overlay's `ResizeObserver` resizes the native view automatically; a thin restore strip
+  (`Swipe down for controls`) below the overlay brings chrome back. `immersive` state in `App.tsx`,
+  gated by `isNativeReels`. (Auto-hide-on-scroll is **not feasible** — the native WebView doesn't report
+  scroll to React.)
+- **Page enhancement (`ENHANCE_PAGE`/`ENHANCE_CSS` in LiveFeed)** — injected on every load: mobile-friendly
+  normalization (text-size-adjust, max-width media, no h-overflow) + **conservative** cosmetic blocking of
+  ad containers / named-CMP cookie walls / newsletter modals. Selectors are precise on purpose (no broad
+  `*=ad*`); body scroll-lock classes are never hidden; `overflow-y` is forced back on so a killed modal
+  can't freeze the page.
+- **#284 (BV2.2) reader toggle** — on an article stumble, a Reader button flips the live site to our clean
+  `ReaderView` (`useReader`) inline; the overlay is hidden (`toggleSnapshot`) while reader shows. State is
+  keyed on the current url so Next auto-exits reader; lazy fetch; graceful "reader unavailable" card.
 
-**Next, agreed with the user:** build the **immersive toggle** (a button to hide the header + bottom bar
-so the live site fills the screen, with a slim handle to restore). NOTE: auto-hide-on-scroll is **not
-feasible** — the native WebView doesn't report scroll to React (the only hack is polling `window.scrollY`
-via `evaluateJavaScript`). Then **reader toggle for articles (#284)** — flip a text article to the clean
-reader inline (the real fix for stubborn non-responsive old sites).
+**Bot (`H1shamM-bot`):** on **#268** — re-scoped to a strictly **append-only** curated-library expansion
+(10 entries to the thin channels Videos/Indie + a new Science & Space channel; hard no-delete guard +
+count/dedup test) after #290 was closed for deleting entries.
 
-**Bot (`H1shamM-bot`):** on **#299** (action-bar polish — a concrete provided design). #290 (content
-expansion) was **closed** — its "restore" still deleted Paul Graham/Wordle/etc.; master's library is good,
-redo #268 as a strictly *additive* task (with a count-floor test) only if revisited.
-
-**Next program-level:** reels-first follow-ups above → **M4** content-safety gate (NSFW/spam
-classification + report/block — a **launch blocker** before any store/public release) → **M5** store
-readiness. Open issues: #284, #267, #268, #275, #286, #295, #299, + security backlog #138/#130.
+**Next program-level:** **M4** content-safety gate (NSFW/spam classification + report/block — a **launch
+blocker** before any store/public release) → **M5** store readiness. Optional: **M3.3** swipe-rate
+gestures. Open issues: #267, #268, #275, #286, + security backlog #138/#130.
 
 ### Backlog
 

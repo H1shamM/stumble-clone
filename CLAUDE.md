@@ -12,18 +12,23 @@ prototype; the real target ships via **Capacitor** (Android; iOS deferred, no Ma
 #172) and the **Explainer Mode epic (#215)** are **fully merged** (B1–B4, F1–F4, P1, P2 — the LLM
 "re-tell a article as a scene reel", Haiku 4.5, hexagonal per `docs/EXPLAINER_BUILD_PLAN.md`).
 
-**Current focus — Reels-first mobile (epic #295), on PR #296 (NOT yet merged).** The breakthrough is
-**Browse v2 (#278): a "reels of live websites" feed** — each stumble's live site renders in a native
-WebView (`@teamhive/capacitor-webview-overlay`, `ui/src/components/LiveFeed.tsx`); swipe/Next through
-live sites. The model (tester-confirmed): **on native there is no separate "reel mode" — mobile *is* the
-full app, the live site renders inline in the content area with the header always above it** (card +
-reader view is web-only). This rework — reels-default inline, swipe handle + haptics, the scroll fix,
-mobile-friendly viewport/UA, the full-app-shell layout, and the menu/modal layering fix — all lives on
-branch **`feat/reels-default-native`** and is held for on-device validation. **➡️ Read `docs/PROGRESS.md`
-"⏯️ RESUME HERE" + the [[mobile-device-dev-setup]] memory before continuing; checkout that branch.**
-Next: an immersive (hide-chrome) toggle, then the reader toggle for articles (#284), then **M4** content
-safety (launch blocker). The junior bot is on #299 (action-bar polish); keep bot PRs to one issue off
-current master (recurring pitfall: stale branches + mixed/deletion PRs — see #290 closed).
+**Current focus — Browse v2 / Reels-first mobile (epic #295/#278) — core loop SHIPPED to master.** Each
+stumble's live site renders in a native WebView (`@teamhive/capacitor-webview-overlay`,
+`ui/src/components/LiveFeed.tsx`); swipe/Next through live sites. The model (tester-confirmed): **on
+native there is no separate "reel mode" — mobile *is* the full app, the live site renders inline in the
+content area with the header always above it** (card + reader view is web-only). Merged so far:
+reels-default inline + swipe handle + haptics + scroll fix + menu/modal layering (**#296**); an
+**immersive (hide-chrome) toggle** that full-screens the live site (header + action bar hide, the
+overlay's `ResizeObserver` resizes the native view, a thin restore strip brings chrome back); a
+**page-enhancement injection** (`ENHANCE_PAGE` in LiveFeed) — mobile-friendly normalization
+(text-size-adjust, max-width media, no h-overflow) + *conservative* cosmetic ad/cookie-wall/popup hiding
+(precise selectors only, never broad `*=ad*`, never body scroll-lock classes, force scroll back on); and
+the **reader toggle for articles (#284)** — flips an article's live site to our clean `ReaderView`
+inline, keyed on url so it auto-resets on Next. **Next:** **M4** content-safety gate (launch blocker,
+senior-heavy), optional M3.3 swipe-rate gestures. Device build/install loop + the LAN-IP/`CAP_BUILD=1`
+gotchas live in the [[mobile-device-dev-setup]] memory and `docs/PROGRESS.md`. The junior bot's mission
+is **#268** (append-only curated-library expansion — re-scoped with a hard no-delete guard after #290);
+keep bot PRs to one issue off current master (recurring pitfall: stale branches + mixed/deletion PRs).
 
 ## Layout (monorepo)
 
