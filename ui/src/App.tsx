@@ -6,13 +6,14 @@ import { usePWA } from "./hooks/usePWA";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useSwipe } from "./hooks/useSwipe";
 import { useTheme } from "./hooks/useTheme";
-import { ChevronUp } from "lucide-react";
+import { ChevronUp, Tv } from "lucide-react";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { MobileNav } from "./components/MobileNav";
 import { AuthModal } from "./components/AuthModal";
 import { ProfileModal } from "./components/ProfileModal";
 import { StumbleArea } from "./components/StumbleArea";
+import { LiveFeed } from "./components/LiveFeed";
 import { ActionButtons } from "./components/ActionButtons";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { FavoritesPanel } from "./components/FavoritesPanel";
@@ -80,6 +81,9 @@ export function App() {
   // Mobile: flick up on the stumble to advance (M3). Scroll-aware, so reading a
   // long article still scrolls — see useSwipe.
   const swipe = useSwipe({ onSwipeUp: handleNext });
+
+  // Live feed mode (BV1): browse live sites inline in a native WebView.
+  const [liveFeed, setLiveFeed] = useState(false);
 
   const {
     favorites,
@@ -324,6 +328,30 @@ export function App() {
                 >
                   <ChevronUp className="size-6" />
                 </button>
+              )}
+
+              {/* Live feed entry (mobile): browse live sites inline. */}
+              {activeShowIframe && activeCurrent && !liveFeed && (
+                <button
+                  type="button"
+                  onClick={() => setLiveFeed(true)}
+                  aria-label="Open reels feed"
+                  className="fixed bottom-6 left-6 z-40 flex items-center gap-2 rounded-full bg-secondary px-5 py-3 font-medium text-secondary-foreground shadow-lg active:scale-95 sm:hidden"
+                  style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+                >
+                  <Tv className="size-5" /> Reels
+                </button>
+              )}
+
+              {liveFeed && activeCurrent && (
+                <LiveFeed
+                  current={activeCurrent}
+                  onNext={handleNext}
+                  onExit={() => setLiveFeed(false)}
+                  onRate={handleRate}
+                  onToggleFavorite={() => toggleFavorite(activeCurrent)}
+                  isFavorite={isFavorite(activeCurrent)}
+                />
               )}
 
               <ActionButtons
