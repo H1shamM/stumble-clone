@@ -192,7 +192,9 @@ export function App() {
     authenticatedFetch(`/recommendations`)
       .then((res) => (res.ok ? res.json() : []))
       .then(setRecommendations)
-      .catch(() => setNetworkError("Failed to load recommendations."));
+      // Non-critical: the recommendations panel shows its own empty state, so a
+      // failure shouldn't raise the prominent network-error banner.
+      .catch(() => setRecommendations([]));
   }, [authenticatedFetch]);
 
   useEffect(() => {
@@ -262,19 +264,28 @@ export function App() {
 
           {networkError && (
             <div
-              className="mx-4 mt-4 flex items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-destructive sm:mx-6"
+              className="mx-4 mt-4 flex items-center justify-between gap-3 rounded-lg border border-border bg-muted px-4 py-2.5 text-sm text-muted-foreground sm:mx-6"
               role="status"
             >
-              <p>⚠️ {networkError}</p>
-              <button
-                className="rounded-md bg-destructive px-3 py-1 text-sm text-white"
-                onClick={() => {
-                  setNetworkError(null);
-                  window.location.reload();
-                }}
-              >
-                Retry
-              </button>
+              <span className="min-w-0 truncate">{networkError}</span>
+              <div className="flex shrink-0 items-center gap-3">
+                <button
+                  className="font-medium text-foreground hover:underline"
+                  onClick={() => {
+                    setNetworkError(null);
+                    window.location.reload();
+                  }}
+                >
+                  Retry
+                </button>
+                <button
+                  aria-label="Dismiss"
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => setNetworkError(null)}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           )}
 

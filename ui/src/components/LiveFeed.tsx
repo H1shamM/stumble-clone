@@ -127,18 +127,18 @@ export function LiveFeed({
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
       {/* Top chrome */}
       <div
-        className="flex items-center gap-2 px-3 pb-2"
-        style={{ paddingTop: "calc(env(safe-area-inset-top) + 8px)" }}
+        className="flex items-center gap-3 px-4 pb-3"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 10px)" }}
       >
         {current && (
           <img
             src={getFaviconUrl(current.source)}
             alt=""
-            className="size-5 shrink-0 rounded"
+            className="size-6 shrink-0 rounded-md border border-border"
           />
         )}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">
+          <p className="truncate text-sm font-semibold leading-tight">
             {current?.title || current?.url}
           </p>
           <p className="truncate text-xs text-muted-foreground">
@@ -148,7 +148,7 @@ export function LiveFeed({
         <button
           onClick={onExit}
           aria-label="Exit live feed"
-          className="grid size-9 place-items-center rounded-full hover:bg-muted"
+          className="grid size-9 shrink-0 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <X className="size-5" />
         </button>
@@ -168,38 +168,43 @@ export function LiveFeed({
       {/* The native live-site overlay is positioned over this element. */}
       <div ref={elRef} className="flex-1 bg-white" />
 
-      {/* Bottom action bar */}
+      {/* Bottom action bar: rating cluster (left) + prominent Next (right). */}
       <div
-        className="flex items-center justify-around gap-1 px-4 pt-2"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)" }}
+        className="flex items-center justify-between gap-2 border-t border-border px-4 pt-3"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 10px)" }}
       >
-        <button
-          onClick={() => onRate("dislike")}
-          aria-label="Dislike"
-          className="grid size-11 place-items-center rounded-full hover:bg-muted"
-        >
-          <ThumbsDown className="size-5" />
-        </button>
-        <button
-          onClick={onToggleFavorite}
-          aria-label="Save to favorites"
-          className="grid size-11 place-items-center rounded-full hover:bg-muted"
-        >
-          <Heart
-            className={isFavorite ? "size-5 fill-current text-red-500" : "size-5"}
-          />
-        </button>
-        <button
-          onClick={() => onRate("like")}
-          aria-label="Like"
-          className="grid size-11 place-items-center rounded-full hover:bg-muted"
-        >
-          <ThumbsUp className="size-5" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onRate("dislike")}
+            aria-label="Dislike"
+            className="grid size-11 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ThumbsDown className="size-5" />
+          </button>
+          <button
+            onClick={onToggleFavorite}
+            aria-label="Save to favorites"
+            className={
+              "grid size-11 place-items-center rounded-full transition-colors hover:bg-muted " +
+              (isFavorite
+                ? "text-red-500"
+                : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            <Heart className={isFavorite ? "size-5 fill-current" : "size-5"} />
+          </button>
+          <button
+            onClick={() => onRate("like")}
+            aria-label="Like"
+            className="grid size-11 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <ThumbsUp className="size-5" />
+          </button>
+        </div>
         <button
           onClick={onNext}
           aria-label="Next stumble"
-          className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground active:scale-95"
+          className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-sm transition active:scale-95"
         >
           <ChevronUp className="size-5" /> Next
         </button>
