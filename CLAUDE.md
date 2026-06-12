@@ -6,26 +6,24 @@ viewing is live, and the **discovery engine has been hardened** (URL dedup, cont
 gate, session dedup, source cooldown, type-aware rendering). Sprints 5–6 are complete —
 see `docs/PROGRESS.md`.
 
-**Current focus — Content & Rendering v2 (Sprint 7, epic #169).** Four structured product-eval
-sessions proved the *engine* was never the problem — content + rendering were. Sprint 7 fixed
-that: a **24-item curated library across 8 channels** (#173), **render-by-type with preview
-cards** for un-iframable content (#172), the **video embed fix** (#176), and the seed rebalance
-(#175). **Session 4 delighted for the first time** (first firm "I'll share this", ~67% format
-mix, zero churn). The one open lever is **preview-image quality** — bare cards under-sell great
-content; the session-5 backlog (#179 screenshot backstop, #180 video thumbnails, #181–184) is
-about converting "maybe send" → "send". The real target is a **mobile app** (web is the
-prototype); "browse the site inside the app" is a native-WebView capability, not a web iframe.
-See PROGRESS and the platform/content memory notes.
+**The app is now a native Android app, and the live product is mobile-first.** The web SaaS UI is the
+prototype; the real target ships via **Capacitor** (Android; iOS deferred, no Mac). The
+**Content & Rendering v2** work (Sprint 7: 24-item curated library #173, render-by-type preview cards
+#172) and the **Explainer Mode epic (#215)** are **fully merged** (B1–B4, F1–F4, P1, P2 — the LLM
+"re-tell a article as a scene reel", Haiku 4.5, hexagonal per `docs/EXPLAINER_BUILD_PLAN.md`).
 
-**Active epic — Explainer Mode / Enrichment v1 (#215).** Formalizing the rushed v0 explainer reel
-(scene-script "re-tell" of an article, Haiku 4.5 + structured outputs, tone-aware prompt) into the
-planned hexagonal architecture per `docs/EXPLAINER_BUILD_PLAN.md`. **Merged:** B1 (#216 versioned
-prompt + adapter + truncation guard), B3 (#218 `ExplainerService`), B4 (#219 `GET /api/v1/explainer`),
-F2 (#221 SceneReel oklch tokens), F4 (#223 `ExplainerState`). **In progress:** B2 (#217 SQLite cache,
-bot), F1 (#220 `useExplainer` hook, senior). **Next:** F3 (#222 3rd ViewModeToggle mode) → P1 (#224
-prefetch) + P2 (#225 telemetry). See the Explainer table in PROGRESS for the full handoff. Two-agent
-note: the junior keeps branching off stale master + mixing issues — closed #229/#230/#232; keep each
-bot PR to one issue off current master.
+**Current focus — Reels-first mobile (epic #295), on PR #296 (NOT yet merged).** The breakthrough is
+**Browse v2 (#278): a "reels of live websites" feed** — each stumble's live site renders in a native
+WebView (`@teamhive/capacitor-webview-overlay`, `ui/src/components/LiveFeed.tsx`); swipe/Next through
+live sites. The model (tester-confirmed): **on native there is no separate "reel mode" — mobile *is* the
+full app, the live site renders inline in the content area with the header always above it** (card +
+reader view is web-only). This rework — reels-default inline, swipe handle + haptics, the scroll fix,
+mobile-friendly viewport/UA, the full-app-shell layout, and the menu/modal layering fix — all lives on
+branch **`feat/reels-default-native`** and is held for on-device validation. **➡️ Read `docs/PROGRESS.md`
+"⏯️ RESUME HERE" + the [[mobile-device-dev-setup]] memory before continuing; checkout that branch.**
+Next: an immersive (hide-chrome) toggle, then the reader toggle for articles (#284), then **M4** content
+safety (launch blocker). The junior bot is on #299 (action-bar polish); keep bot PRs to one issue off
+current master (recurring pitfall: stale branches + mixed/deletion PRs — see #290 closed).
 
 ## Layout (monorepo)
 

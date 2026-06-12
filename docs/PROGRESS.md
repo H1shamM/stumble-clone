@@ -249,37 +249,70 @@ the app (native WebView, not an iframe).
 | M3.1 | Swipe-up-to-next + always-visible mobile Next | senior | Done (PR #269 / #271) — scroll-aware `useSwipe` |
 | BV0 | Spike: live site inline via webview-overlay (GO/NO-GO) | senior | **PASS** on device (#279) |
 | BV1 | Live feed ("Reels") — inline live-site discovery | senior | Done (PR #281 / #280) — `LiveFeed` + `@teamhive/capacitor-webview-overlay` |
+| BV2.1 | Reels polish: loading bar, snapshot swap, prominent entry | senior | Done (PR #285 / #283) |
+| Reels-first | Mobile = full app shell, live site inline (no separate mode) | senior | **In progress on PR #296** — see ⏯️ RESUME HERE |
 
-> **Browse v2 (epic #278)** — the "reels of live websites" surface — is the breakthrough: **device-tested
-> as delightful** (user spent ~5 min and found a site they loved). v1 is opt-in ("Reels" button). Next
-> = BV2 polish (swipe-to-advance, snapshot transition, loading, reader-toggle). The plugin is
-> productionized: `.npmrc` legacy-peer-deps (it peer-deps Capacitor 7), `@testing-library/dom` restored,
-> AGP-9 proguard fix via patch-package + `postinstall`.
+> **Browse v2 (epic #278) is the product breakthrough** — "reels of live websites", device-tested as
+> delightful. The plugin `@teamhive/capacitor-webview-overlay` is productionized: `ui/.npmrc`
+> `legacy-peer-deps` (it peer-deps Capacitor 7), `@testing-library/dom` restored as an explicit devDep,
+> and the plugin's AGP-9 proguard incompatibility fixed durably via **patch-package** + `postinstall`
+> (`ui/patches/`). `minSdkVersion` 26.
 
-**Where we left off:** Phases 0–2 are shipped and **running on a real Android device**. S1 scaffold
-(Capacitor v8), M1.1–M1.3 shell (branded indigo icon/splash, status bar, dev loop, safe-area), and
-**M2 browse** — tapping a preview card's "Open the site" opens the site in a native WebView *inside
-the app* (`useBrowse` → `@capacitor/inappbrowser` `openInWebView`; `minSdkVersion` bumped to 26).
-That **validated S2** (the keystone gate): an un-iframable site renders in-app on device. iOS deferred
-(no Mac).
+**Merged to master (Phases 0–2 + the explainer epic + UI/UX hardening):** S1 scaffold (Capacitor v8),
+M1.1–M1.3 shell (branded icon/splash, status bar, dev loop, safe-area), **M2** in-app browse (`useBrowse`
++ `@capacitor/inappbrowser`, which validated the **S2** keystone gate #250), **M3.1** swipe-up-to-next,
+and **BV1/BV2.1** the (opt-in, on master) Reels feed. UI/UX hardening (epic #286): home decluttered into
+the ☰ menu (#288), header integrates menu+brand (#292), dark-mode reader fix (#289), softer error banner
++ reels chrome (#294), empty-state + PreviewCard polish (#298). The **Explainer epic (#215)** is fully
+merged (B1–B4, F1–F4, P1, P2). iOS deferred (no Mac).
 
-Device-connectivity for dev (all merged): the app talks to the backend over the LAN
-(`VITE_API_URL=http://<host-ip>:3000/api/v1`, works on emulator + phone on the same Wi-Fi, no `adb
-reverse`); `capacitor.config.ts` uses `androidScheme: http` + `cleartext` and backend CORS allows the
-`localhost`/`capacitor://localhost` origins (#260); the **service worker is disabled in native builds**
-(`CAP_BUILD=1`, #264) so reinstalls aren't served a stale bundle. Build a device APK with
-`VITE_API_URL=… CAP_BUILD=1`. AGP 9 build fix in #259.
+**Device-connectivity for dev (merged):** the app reaches the backend over the **LAN**
+(`VITE_API_URL=http://<host-ip>:3000/api/v1` — works on a same-Wi-Fi **phone**; the **emulator can't
+reach the host LAN IP**, it needs `10.0.2.2`); `capacitor.config.ts` = `androidScheme: http` +
+`cleartext`, CORS allows `localhost`/`capacitor://localhost` (#260); **service worker disabled in native
+builds** (`CAP_BUILD=1`, #264) so reinstalls aren't stale; AGP-9 build fix (#259). **Build a device APK:**
+`cd ui ; $env:VITE_API_URL="http://<host-ip>:3000/api/v1"; $env:CAP_BUILD="1"; npm run build; npx cap sync android`,
+then `ui/android/gradlew.bat :app:assembleDebug` (`JAVA_HOME` = Android Studio `jbr`), then install via the
+**SDK adb** (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe` — NOT the standalone "ADB and Fastboot++",
+which conflicts). Prefer a clean `adb uninstall` + `install` when swapping builds. See the
+[[mobile-device-dev-setup]] memory.
 
-**M3.1** (swipe-up = next, scroll-aware; + a fixed mobile "Skip to next" so long articles don't need
-scrolling to the action bar) is merged. **Open mobile bugs/follow-ups from device testing:** #275
-(WebView serves a stale bundle after `adb install -r` — clean uninstall+install needed for now), #266
-(reader hard to read in dark mode), #267 (persistent nav for Favorites/History/Recs), #268 (more
-content across genres).
+---
 
-**Next:** **M3.2/M3.3** (haptics + slide transition; swipe-down=previous; optional swipe-rate) →
-**M4** — the content-safety gate (automated NSFW/spam classification + report/block), a **launch
-blocker** before any store/public release (both core features expose raw web) → **M5** store readiness.
-Remaining explainer-epic polish is all merged (B1–B4, F1–F4, P1, P2).
+### ⏯️ RESUME HERE — Reels-first mobile (epic #295), PR #296 (NOT yet merged)
+
+The mobile model was reframed by the tester: **on native there is NO separate "reel mode" — mobile *is*
+the full app, and the live website renders INLINE in the content area.** The header (search / ☰ menu /
+dark / account) stays above it and is always available; the rate/favorite/Next bar is below; there is no
+exit button. The card + reader view is **web-only**.
+
+**All of this lives on branch `feat/reels-default-native` / PR #296.** `git checkout feat/reels-default-native`
+to continue. **It is held for the user's on-device validation before merge** (master still has the
+pre-reels-first, opt-in version). #296 contains:
+- **reels is the native default** — `isNativeReels` in `App.tsx` renders `LiveFeed` filling `main`;
+- **swipe-up handle + haptics** (`ui/src/hooks/useHaptics.ts`, `@capacitor/haptics`);
+- **scroll fix** — dropped the `toggleSnapshot` freeze that could leave a frozen, unscrollable page;
+- **mobile-friendly rendering** — phone user-agent + forced `width=device-width` viewport (re-applied via
+  `evaluateJavaScript` after every load) for old/non-responsive sites;
+- **full-app-shell rewrite** — `LiveFeed` is inline (not a fixed overlay), no exit/menu/dark chrome (the
+  real header handles those);
+- **layering fix** — the native WebView renders above all React UI, so menus/modals were trapped behind
+  it; `ui/src/hooks/useAnyOverlayOpen.ts` (watches the body for `[role=dialog|menu|listbox|alertdialog]`)
+  drives a `paused` prop that hides the native view (`toggleSnapshot`) while any overlay is open.
+
+**Next, agreed with the user:** build the **immersive toggle** (a button to hide the header + bottom bar
+so the live site fills the screen, with a slim handle to restore). NOTE: auto-hide-on-scroll is **not
+feasible** — the native WebView doesn't report scroll to React (the only hack is polling `window.scrollY`
+via `evaluateJavaScript`). Then **reader toggle for articles (#284)** — flip a text article to the clean
+reader inline (the real fix for stubborn non-responsive old sites).
+
+**Bot (`H1shamM-bot`):** on **#299** (action-bar polish — a concrete provided design). #290 (content
+expansion) was **closed** — its "restore" still deleted Paul Graham/Wordle/etc.; master's library is good,
+redo #268 as a strictly *additive* task (with a count-floor test) only if revisited.
+
+**Next program-level:** reels-first follow-ups above → **M4** content-safety gate (NSFW/spam
+classification + report/block — a **launch blocker** before any store/public release) → **M5** store
+readiness. Open issues: #284, #267, #268, #275, #286, #295, #299, + security backlog #138/#130.
 
 ### Backlog
 

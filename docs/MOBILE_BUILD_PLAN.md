@@ -1,5 +1,11 @@
 # Mobile — Build Plan (Program: Native App v1)
 
+> **⚠️ Status note (2026-06-12):** Phases 0–2 are built/merged, but the product **pivoted to
+> "reels-first"** — the live-site feed (Browse v2, epic #278/#295) is the mobile experience, not the
+> card+modal browse this plan assumed. M2's modal `openInBrowser` is now a web/fallback path. **For the
+> current state and where to resume, read `docs/PROGRESS.md` → "⏯️ RESUME HERE" (PR #296).** The M3/M4/M5
+> phases below (swipe, content-safety gate, store) still stand.
+
 **For:** Claude Code (senior agent), scoped into GitHub issues per `docs/WORKFLOW.md`
 (issue → `feat/`|`fix/` branch → tests → lint → Conventional Commit `Closes #N` →
 PR → CI → squash-merge → update `docs/PROGRESS.md`).
