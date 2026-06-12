@@ -336,7 +336,7 @@ export function App() {
                   type="button"
                   onClick={() => setLiveFeed(true)}
                   aria-label="Open reels feed"
-                  className="fixed bottom-6 left-6 z-40 flex items-center gap-2 rounded-full bg-secondary px-5 py-3 font-medium text-secondary-foreground shadow-lg active:scale-95 sm:hidden"
+                  className="fixed inset-x-0 bottom-6 z-40 mx-auto flex w-fit items-center gap-2 rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-primary-foreground shadow-xl ring-4 ring-primary/20 active:scale-95 sm:hidden"
                   style={{ marginBottom: "env(safe-area-inset-bottom)" }}
                 >
                   <Tv className="size-5" /> Reels

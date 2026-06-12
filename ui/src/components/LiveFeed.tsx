@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { X, ChevronUp, ThumbsUp, ThumbsDown, Heart } from "lucide-react";
 import { getFaviconUrl } from "../utils/contentHelpers";
@@ -35,7 +35,10 @@ export function LiveFeed({
   const elRef = useRef<HTMLDivElement>(null);
   const overlay = useRef<Overlay | null>(null);
   const openedUrl = useRef<string | null>(null);
+  const snapshotActive = useRef(false);
   const native = Capacitor.isNativePlatform();
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
 
   // Open the inline webview once on mount; close it on exit.
   useEffect(() => {
@@ -45,6 +48,21 @@ export function LiveFeed({
       const mod = await import("@teamhive/capacitor-webview-overlay");
       if (cancelled || !elRef.current) return;
       overlay.current = mod.WebviewOverlay;
+      // Loading bar (chrome) + reveal the new page once it has loaded.
+      mod.WebviewOverlay.onProgress((p) => {
+        const v = p.value > 1 ? p.value / 100 : p.value;
+        setProgress(v);
+        if (v < 1) setLoading(true);
+      });
+      mod.WebviewOverlay.onPageLoaded(() => {
+        setProgress(1);
+        setLoading(false);
+        if (snapshotActive.current) {
+          // Reveal the freshly loaded live page (end the swap freeze).
+          mod.WebviewOverlay.toggleSnapshot(false).catch(() => {});
+          snapshotActive.current = false;
+        }
+      });
       try {
         await mod.WebviewOverlay.open({
           url: current.url,
@@ -70,6 +88,17 @@ export function LiveFeed({
     const url = current?.url;
     if (!url || !overlay.current || openedUrl.current === url) return;
     openedUrl.current = url;
+    setLoading(true);
+    setProgress(0);
+    // Freeze the outgoing page to a snapshot during the swap — the native view
+    // is hidden while snapshotting, so we don't flash a half-loaded page.
+    // onPageLoaded reveals the new live page (toggleSnapshot(false)).
+    overlay.current
+      .toggleSnapshot(true)
+      .then(() => {
+        snapshotActive.current = true;
+      })
+      .catch(() => {});
     overlay.current.loadUrl(url).catch((e) => {
       console.error("[LiveFeed] loadUrl failed", e);
     });
@@ -123,6 +152,17 @@ export function LiveFeed({
         >
           <X className="size-5" />
         </button>
+      </div>
+
+      {/* Loading bar — sits in the chrome (outside the overlay rect) so it
+          stays visible above the native view. */}
+      <div className="h-0.5 w-full bg-muted">
+        {loading && (
+          <div
+            className="h-full bg-primary transition-[width] duration-150 ease-out"
+            style={{ width: `${Math.round(progress * 100)}%` }}
+          />
+        )}
       </div>
 
       {/* The native live-site overlay is positioned over this element. */}
