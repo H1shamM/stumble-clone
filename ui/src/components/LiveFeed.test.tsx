@@ -23,12 +23,17 @@ const current = {
   source: "Test",
 };
 
+const authenticatedFetch = vi
+  .fn()
+  .mockResolvedValue({ ok: false, status: 422 } as Response);
+
 const baseProps = {
   current,
   onNext: vi.fn(),
   onRate: vi.fn(),
   onToggleFavorite: vi.fn(),
   isFavorite: false,
+  authenticatedFetch,
 };
 
 describe("LiveFeed", () => {
@@ -86,5 +91,35 @@ describe("LiveFeed", () => {
     // …and the restore strip brings the chrome back.
     fireEvent.click(screen.getByRole("button", { name: /show controls/i }));
     expect(onToggleImmersive).toHaveBeenCalled();
+  });
+
+  it("shows the Reader toggle only for article stumbles", () => {
+    isNative.mockReturnValue(true);
+    // Non-article: no Reader control.
+    const { unmount } = render(<LiveFeed {...baseProps} />);
+    expect(
+      screen.queryByRole("button", { name: /read article/i }),
+    ).not.toBeInTheDocument();
+    unmount();
+
+    // Article: Reader control present.
+    render(
+      <LiveFeed {...baseProps} current={{ ...current, type: "article" }} />,
+    );
+    expect(
+      screen.getByRole("button", { name: /read article/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("toggling Reader fetches the reader view for the article", () => {
+    isNative.mockReturnValue(true);
+    render(
+      <LiveFeed {...baseProps} current={{ ...current, type: "article" }} />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /read article/i }));
+    expect(authenticatedFetch).toHaveBeenCalledWith(
+      expect.stringContaining("/reader?url="),
+    );
   });
 });

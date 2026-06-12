@@ -355,6 +355,7 @@ export function App() {
                 paused={overlayOpen}
                 immersive={immersiveActive}
                 onToggleImmersive={() => setImmersive((v) => !v)}
+                authenticatedFetch={typedAuthenticatedFetch}
               />
             ) : (
               <div className="mx-auto w-full max-w-5xl space-y-6">

@@ -7,10 +7,16 @@ import {
   ThumbsDown,
   Heart,
   Maximize2,
+  BookOpen,
+  Globe,
+  Loader2,
 } from "lucide-react";
 import { getFaviconUrl } from "../utils/contentHelpers";
 import { useHaptics } from "../hooks/useHaptics";
+import { useReader } from "../hooks/useReader";
+import { ReaderView } from "./ReaderView";
 import type { StumbleResult } from "../hooks/useStumble";
+import type { AuthenticatedFetch } from "../types";
 
 type Overlay =
   (typeof import("@teamhive/capacitor-webview-overlay"))["WebviewOverlay"];
@@ -63,6 +69,9 @@ interface LiveFeedProps {
   immersive?: boolean;
   /** Toggle immersive mode (the header is owned by the app shell). */
   onToggleImmersive?: () => void;
+  /** Used to fetch the clean reader view for articles (lazy — only when the
+   *  Reader toggle is on). */
+  authenticatedFetch: AuthenticatedFetch;
 }
 
 /**
@@ -78,7 +87,12 @@ interface LiveFeedProps {
  * site fills the screen; the overlay's `ResizeObserver` repositions the native
  * view automatically when the element grows. A thin restore strip stays *below*
  * the overlay (React chrome the WebView can't eat) to bring the controls back.
- * Native-only. Fills its parent (h-full).
+ *
+ * **Reader mode** (articles only) hides the native overlay and renders our
+ * clean extracted reader in the same area — reading a full desktop article on a
+ * phone is worse than the reader. It's keyed on the current url so it resets
+ * automatically when you advance to the next site. Native-only. Fills its
+ * parent (h-full).
  */
 export function LiveFeed({
   current,
@@ -89,6 +103,7 @@ export function LiveFeed({
   paused = false,
   immersive = false,
   onToggleImmersive,
+  authenticatedFetch,
 }: LiveFeedProps) {
   const elRef = useRef<HTMLDivElement>(null);
   const overlay = useRef<Overlay | null>(null);
@@ -97,6 +112,21 @@ export function LiveFeed({
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
   const { impact } = useHaptics();
+
+  // Reader mode is keyed on the url it was turned on for, so advancing to the
+  // next stumble (a different url) auto-exits reader — no reset effect needed.
+  const isArticle = current?.type === "article";
+  const [readerUrl, setReaderUrl] = useState<string | null>(null);
+  const readerMode = !!current && isArticle && readerUrl === current.url;
+  const toggleReader = () => {
+    impact("light");
+    setReaderUrl(readerMode ? null : (current?.url ?? null));
+  };
+  const {
+    data: reader,
+    loading: readerLoading,
+    error: readerError,
+  } = useReader(authenticatedFetch, readerMode ? current!.url : null);
   const swipeStart = useRef<{ y: number; t: number } | null>(null);
 
   const advance = () => {
@@ -185,10 +215,11 @@ export function LiveFeed({
   }, [current?.url]);
 
   // Hide the native WebView (show a static snapshot) while a menu/modal is open
-  // so React overlays aren't trapped behind it; restore it on close.
+  // or while reader mode is showing our React reader over the same area, so the
+  // overlay isn't trapped above our UI; restore it otherwise.
   useEffect(() => {
-    overlay.current?.toggleSnapshot(paused).catch(() => {});
-  }, [paused]);
+    overlay.current?.toggleSnapshot(paused || readerMode).catch(() => {});
+  }, [paused, readerMode]);
 
   if (!native) {
     return (
@@ -219,6 +250,25 @@ export function LiveFeed({
               {current?.source}
             </p>
           </div>
+          {isArticle && (
+            <button
+              onClick={toggleReader}
+              aria-label={readerMode ? "Show live site" : "Read article"}
+              aria-pressed={readerMode}
+              className={
+                "grid size-9 shrink-0 place-items-center rounded-full transition-colors hover:bg-muted " +
+                (readerMode
+                  ? "bg-primary/10 text-primary hover:text-primary"
+                  : "text-muted-foreground hover:text-foreground")
+              }
+            >
+              {readerMode ? (
+                <Globe className="size-4" />
+              ) : (
+                <BookOpen className="size-4" />
+              )}
+            </button>
+          )}
           {onToggleImmersive && (
             <button
               onClick={() => {
@@ -244,10 +294,43 @@ export function LiveFeed({
         )}
       </div>
 
-      {/* The native live-site overlay is positioned over this element. Kept
-          mounted across the immersive toggle so the overlay isn't re-opened;
-          the plugin's ResizeObserver repositions the native view as it grows. */}
-      <div ref={elRef} className="flex-1 bg-white" />
+      {/* The native live-site overlay is positioned over `elRef` (kept mounted
+          across the immersive/reader toggles so it's never re-opened; the
+          plugin's ResizeObserver repositions the native view as it grows). In
+          reader mode the overlay is hidden and our reader renders on top. */}
+      <div className="relative flex-1">
+        <div ref={elRef} className="absolute inset-0 bg-white" />
+        {readerMode && (
+          <div className="absolute inset-0 overflow-y-auto bg-background px-4 py-4">
+            {readerLoading ? (
+              <div className="grid h-full place-items-center text-muted-foreground">
+                <Loader2 className="size-6 animate-spin" />
+              </div>
+            ) : readerError || !reader ? (
+              <div className="grid h-full place-items-center px-6 text-center">
+                <div className="space-y-3">
+                  <p className="text-sm text-muted-foreground">
+                    Reader view isn’t available for this page.
+                  </p>
+                  <button
+                    onClick={() => setReaderUrl(null)}
+                    className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+                  >
+                    <Globe className="size-4" /> View the live site
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <ReaderView
+                title={reader.title}
+                byline={reader.byline}
+                siteName={reader.siteName}
+                content={reader.content}
+              />
+            )}
+          </div>
+        )}
+      </div>
 
       {immersive ? (
         // Immersive: only a thin restore strip stays below the overlay (the
