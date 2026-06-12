@@ -411,6 +411,17 @@ export const DEFAULT_SEED_ASSETS: SeedAsset[] = [
   { id: "ic10", url: "https://yesterweb.org/", title: "The Yesterweb", description: "A community reclaiming a more human internet.", source: "Yesterweb", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
   { id: "ic11", url: "https://libraryofbabel.info/", title: "The Library of Babel", description: "Every possible page of text that ever could be written.", source: "Library of Babel", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
   { id: "ic12", url: "https://neal.fun/internet-artifacts/", title: "Internet Artifacts", description: "A playable museum of the web, from 1977 to today.", source: "neal.fun", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+  // --- New Entries (#268 - Science & Space, Indie & Classic Web) ---
+  { id: "sn11", url: "https://hubblesite.org/", title: "HubbleSite", description: "The official hub for Hubble Space Telescope imagery.", source: "HubbleSite", category: "science", rating: 0, type: "image", channel: "Science & Space" },
+  { id: "sn12", url: "https://www.jpl.nasa.gov/", title: "NASA JPL", description: "Explore the latest robotic space exploration missions.", source: "NASA JPL", category: "science", rating: 0, type: "image", channel: "Science & Space" },
+  { id: "sn13", url: "https://earthobservatory.nasa.gov/", title: "NASA Earth Observatory", description: "See the Earth as NASA sees it.", source: "NASA Earth Observatory", category: "science", rating: 0, type: "image", channel: "Science & Space" },
+  { id: "sn14", url: "https://www.nature.com/nature/articles?type=news", title: "Nature News", description: "Latest science news from Nature.", source: "Nature News", category: "science", rating: 0, type: "article", channel: "Science & Space" },
+  { id: "ic13", url: "https://motherfuckingwebsite.com/", title: "Motherfucking Website", description: "A masterclass in minimal, performant web design.", source: "Motherfucking Website", category: "tech", rating: 0, type: "article", channel: "Indie & Classic Web" },
+  { id: "ic14", url: "https://bettermotherfuckingwebsite.com/", title: "Better Motherfucking Website", description: "The classic site, improved with readability.", source: "Better Motherfucking Website", category: "tech", rating: 0, type: "article", channel: "Indie & Classic Web" },
+  { id: "ic15", url: "https://longnow.org/", title: "The Long Now Foundation", description: "Fostering long-term thinking over 10,000 years.", source: "Long Now", category: "random", rating: 0, type: "article", channel: "Indie & Classic Web" },
+  { id: "ic16", url: "https://wiki.theory.org/index.php/Main_Page", title: "Theory.org", description: "A community wiki for eclectic, nerdy exploration.", source: "Theory.org", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+  { id: "ic17", url: "https://theoldnet.com/", title: "The Old Net", description: "Browse the web as it looked in the 90s.", source: "The Old Net", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+  { id: "ic18", url: "https://www.google.com/search?q=1998+google", title: "Google 1998", description: "Search as Google did back in 1998.", source: "Google", category: "tech", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
 ];
 
 export async function ensureDevUser(storage: IStoragePort): Promise<void> {
