@@ -21,7 +21,7 @@ export function ReaderView({ title, byline, siteName, content }: ReaderViewProps
       <CardContent>
         {/* HTML is sanitized server-side by the backend */}
         <div
-          className="prose prose-neutral max-w-none"
+          className="prose prose-neutral dark:prose-invert max-w-none"
           dangerouslySetInnerHTML={{ __html: content }}
         />
       </CardContent>
