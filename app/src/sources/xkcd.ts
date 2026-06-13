@@ -29,7 +29,11 @@ export class XkcdSource implements ContentFetcher {
   async fetchStumble(category: string): Promise<StumbleAsset | null> {
     try {
       // 1. Fetch the latest comic to get the max comic number
-      const latestRes = await fetchWithTimeout("https://xkcd.com/info.0.json", {}, 5000);
+      const latestRes = await fetchWithTimeout(
+        "https://xkcd.com/info.0.json",
+        {},
+        5000,
+      );
       if (!latestRes.ok) {
         return null;
       }
@@ -39,7 +43,11 @@ export class XkcdSource implements ContentFetcher {
       const n = Math.floor(Math.random() * latest.num) + 1;
 
       // 3. Fetch the random comic
-      const res = await fetchWithTimeout(`https://xkcd.com/${n}/info.0.json`, {}, 5000);
+      const res = await fetchWithTimeout(
+        `https://xkcd.com/${n}/info.0.json`,
+        {},
+        5000,
+      );
       if (!res.ok) {
         return null;
       }

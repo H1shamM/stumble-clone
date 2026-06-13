@@ -12,7 +12,7 @@ export interface ReaderResult {
 
 export function useReader(
   authenticatedFetch: (url: string, options?: RequestInit) => Promise<Response>,
-  url: string | null
+  url: string | null,
 ) {
   const [data, setData] = useState<ReaderResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,9 +22,9 @@ export function useReader(
     if (!url) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setData(null);
-       
+
       setLoading(false);
-       
+
       setError(null);
       return;
     }

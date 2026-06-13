@@ -90,11 +90,24 @@ const STYLE = `
 
 function Skeleton() {
   return (
-    <div className="reel-slide" aria-busy="true" aria-label="Loading the explainer">
-      <div className="reel-sk" style={{ width: 96, height: 96, borderRadius: 20, marginBottom: 24 }} />
-      <div className="reel-sk" style={{ width: "70%", height: 30, marginBottom: 14 }} />
+    <div
+      className="reel-slide"
+      aria-busy="true"
+      aria-label="Loading the explainer"
+    >
+      <div
+        className="reel-sk"
+        style={{ width: 96, height: 96, borderRadius: 20, marginBottom: 24 }}
+      />
+      <div
+        className="reel-sk"
+        style={{ width: "70%", height: 30, marginBottom: 14 }}
+      />
       <div className="reel-sk" style={{ width: "85%", height: 16 }} />
-      <div className="reel-sk" style={{ width: "60%", height: 16, marginTop: 8 }} />
+      <div
+        className="reel-sk"
+        style={{ width: "60%", height: 16, marginTop: 8 }}
+      />
     </div>
   );
 }
@@ -123,7 +136,8 @@ export function SceneReel({
 
   const [i, setI] = useState(0);
   const total = slides.length;
-  const accent = ACCENTS[Math.max(0, Math.min(i, ACCENTS.length - 1)) % ACCENTS.length];
+  const accent =
+    ACCENTS[Math.max(0, Math.min(i, ACCENTS.length - 1)) % ACCENTS.length];
 
   const go = useCallback(
     (n: number) => setI((c) => Math.max(0, Math.min(total - 1, c + n))),
@@ -174,7 +188,10 @@ export function SceneReel({
 
       <div className="reel-bars">
         {slides.map((_, idx) => (
-          <span key={idx} className={`seg ${idx < i ? "done" : ""} ${idx === i ? "active" : ""}`}>
+          <span
+            key={idx}
+            className={`seg ${idx < i ? "done" : ""} ${idx === i ? "active" : ""}`}
+          >
             <i />
           </span>
         ))}
@@ -184,9 +201,21 @@ export function SceneReel({
         <span>{`${i + 1} / ${total}`}</span>
       </div>
 
-      <div className="reel-viewport" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <button className="reel-zone left" aria-label="Previous slide" onClick={() => go(-1)} />
-        <button className="reel-zone right" aria-label="Next slide" onClick={() => go(1)} />
+      <div
+        className="reel-viewport"
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+      >
+        <button
+          className="reel-zone left"
+          aria-label="Previous slide"
+          onClick={() => go(-1)}
+        />
+        <button
+          className="reel-zone right"
+          aria-label="Next slide"
+          onClick={() => go(1)}
+        />
 
         <div
           className="reel-track"
@@ -203,7 +232,9 @@ export function SceneReel({
                   style={{ ["--accent" as string]: a }}
                   aria-hidden={idx !== i}
                 >
-                  <div className="reel-kicker">explainer reel · {scenes.length} scenes</div>
+                  <div className="reel-kicker">
+                    explainer reel · {scenes.length} scenes
+                  </div>
                   <h1 className="reel-h">{title}</h1>
                   {summary && <p className="lede">{summary}</p>}
                   <div className="reel-swipehint">swipe to begin →</div>
@@ -231,7 +262,11 @@ export function SceneReel({
                   <p className="reel-src">
                     {provenance}
                     {" · "}
-                    <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       Read the original
                     </a>
                     {isWiki && " · CC BY-SA"}
@@ -250,7 +285,9 @@ export function SceneReel({
                 <div className="reel-emoji" role="img" aria-label={s.heading}>
                   {s.emoji}
                 </div>
-                <div className="reel-kicker">scene {idx - (hasCover ? 1 : 0) + 1}</div>
+                <div className="reel-kicker">
+                  scene {idx - (hasCover ? 1 : 0) + 1}
+                </div>
                 <h2 className="reel-h">{s.heading}</h2>
                 <p className="reel-body">{s.body}</p>
               </div>
@@ -264,7 +301,11 @@ export function SceneReel({
           ← Back
         </button>
         <span className="reel-count">{`${i + 1} / ${total}`}</span>
-        <button className="reel-btn" onClick={() => go(1)} disabled={i === total - 1}>
+        <button
+          className="reel-btn"
+          onClick={() => go(1)}
+          disabled={i === total - 1}
+        >
           Next →
         </button>
       </div>

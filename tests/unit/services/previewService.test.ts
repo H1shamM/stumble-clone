@@ -35,7 +35,10 @@ describe("extractPreview", () => {
     );
     expect(withTitle.title).toBe("Plain Title");
 
-    const bare = extractPreview("<html><body>hi</body></html>", "https://www.foo.test/x");
+    const bare = extractPreview(
+      "<html><body>hi</body></html>",
+      "https://www.foo.test/x",
+    );
     expect(bare.title).toBe("foo.test");
     expect(bare.siteName).toBe("foo.test");
   });

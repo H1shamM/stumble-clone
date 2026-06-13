@@ -39,8 +39,7 @@ describe("DiscoveryService eager growth + quality gate", () => {
     source = { fetchStumble: vi.fn() };
   });
 
-  const build = () =>
-    new DiscoveryService(storage as IStoragePort, [source]);
+  const build = () => new DiscoveryService(storage as IStoragePort, [source]);
 
   it("cold start (<5): fetches a servable asset and saves it", async () => {
     const fresh = asset("fresh");

@@ -11,7 +11,8 @@ describe("XkcdSource", () => {
 
   it("should fetch and map xkcd data successfully", async () => {
     // Mock the two sequential fetch calls
-    global.fetch = vi.fn()
+    global.fetch = vi
+      .fn()
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ num: 100 }),
@@ -47,7 +48,8 @@ describe("XkcdSource", () => {
   });
 
   it("should return null when the second fetch (comic) fails", async () => {
-    global.fetch = vi.fn()
+    global.fetch = vi
+      .fn()
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ({ num: 100 }),

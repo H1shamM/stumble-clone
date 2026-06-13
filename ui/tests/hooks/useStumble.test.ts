@@ -21,7 +21,9 @@ describe("useStumble - Video Embed URL", () => {
       await result.current.fetchStumble();
     });
 
-    expect(result.current.current?.proxyUrl).toBe("https://youtube.com/embed/abc");
+    expect(result.current.current?.proxyUrl).toBe(
+      "https://youtube.com/embed/abc",
+    );
     expect(result.current.current?.proxyUrl).not.toContain("/proxy");
   });
 
@@ -44,6 +46,8 @@ describe("useStumble - Video Embed URL", () => {
     });
 
     expect(result.current.current?.proxyUrl).toContain("/proxy");
-    expect(result.current.current?.proxyUrl).toContain(encodeURIComponent("https://example.com/article"));
+    expect(result.current.current?.proxyUrl).toContain(
+      encodeURIComponent("https://example.com/article"),
+    );
   });
 });

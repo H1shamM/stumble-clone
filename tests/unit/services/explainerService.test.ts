@@ -14,7 +14,8 @@ const article: ReaderResult = {
   byline: null,
   siteName: "Wikipedia",
   excerpt: null,
-  content: '<p>It survives.</p><img src="https://cdn.example.com/water-bear.jpg" />',
+  content:
+    '<p>It survives.</p><img src="https://cdn.example.com/water-bear.jpg" />',
   textContent: "A tiny animal that survives almost anything.".repeat(20),
   length: 800,
 };
@@ -40,7 +41,9 @@ describe("ExplainerService.explain (#218)", () => {
     const llm: ExplainerLLM = { summarize };
     const svc = new ExplainerService(llm, okDeps());
 
-    const result = await svc.explain("https://en.wikipedia.org/wiki/Tardigrade");
+    const result = await svc.explain(
+      "https://en.wikipedia.org/wiki/Tardigrade",
+    );
 
     expect(result.summary).toBe("It refuses to die.");
     expect(result.keyPoints).toEqual(["tiny", "tough"]);

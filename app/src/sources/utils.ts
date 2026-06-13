@@ -36,4 +36,3 @@ export function looksEnglish(text: string): boolean {
   // Reject if it contains accented/diacritic Latin or non-Latin letters.
   return !/[À-ÖØ-öø-ÿĀ-ɏͰ-￿]/.test(text);
 }
-

@@ -1,5 +1,12 @@
 // ui/src/components/ActionButtons.tsx
-import { ThumbsUp, ThumbsDown, Star, Share2, Shuffle, ArrowRight } from "lucide-react";
+import {
+  ThumbsUp,
+  ThumbsDown,
+  Star,
+  Share2,
+  Shuffle,
+  ArrowRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +54,8 @@ export function ActionButtons({
         size="icon"
         className={cn(
           "size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90",
-          rating === "like" && "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary"
+          rating === "like" &&
+            "bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary",
         )}
         onClick={() => onRate("like")}
         disabled={rateLoading}
@@ -60,7 +68,8 @@ export function ActionButtons({
         size="icon"
         className={cn(
           "size-10 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground active:scale-90",
-          rating === "dislike" && "bg-destructive/10 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          rating === "dislike" &&
+            "bg-destructive/10 text-destructive hover:bg-destructive/10 hover:text-destructive",
         )}
         onClick={() => onRate("dislike")}
         disabled={rateLoading}

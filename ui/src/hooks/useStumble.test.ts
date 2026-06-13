@@ -39,17 +39,17 @@ describe("useStumble", () => {
 
   const makeFetchMock = () => {
     let n = 0;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    return vi.fn((_url: string): Promise<Response> =>
-      Promise.resolve({
-        ok: true,
-        json: async () => ({
-          id: String(++n),
-          url: "http://t.com",
-          category: "test",
-          source: "test",
-        }),
-      } as Response),
+    return vi.fn(
+      (_url: string): Promise<Response> =>
+        Promise.resolve({
+          ok: true,
+          json: async () => ({
+            id: String(++n),
+            url: "http://t.com",
+            category: "test",
+            source: "test",
+          }),
+        } as Response),
     );
   };
 
@@ -61,10 +61,10 @@ describe("useStumble", () => {
     await act(async () => {
       await result.current.fetchStumble();
     });
-    
+
     // Check if calls exist
     expect(fetchMock.mock.calls.length).toBeGreaterThan(0);
-    
+
     // First direct call carries no history (nothing seen yet).
     expect(fetchMock.mock.calls[0][0]).toBe("/stumble?category=test");
     // The follow-up prefetch carries the now-seen id.
@@ -85,7 +85,6 @@ describe("useStumble", () => {
   it("warms the explainer for the next queued article in the background", async () => {
     let n = 0;
     const fetchMock = vi.fn(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (_url: string): Promise<Response> =>
         Promise.resolve({
           ok: true,
@@ -117,7 +116,6 @@ describe("useStumble", () => {
   it("does not warm the explainer for a non-article next asset", async () => {
     let n = 0;
     const fetchMock = vi.fn(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       (_url: string): Promise<Response> =>
         Promise.resolve({
           ok: true,
@@ -172,21 +170,23 @@ describe("useStumble", () => {
       await result.current.fetchStumble();
     });
 
-    expect(JSON.parse(sessionStorage.getItem("stumble:seen:test")!)).toContain("1");
-    
+    expect(JSON.parse(sessionStorage.getItem("stumble:seen:test")!)).toContain(
+      "1",
+    );
+
     // Remount the hook in the same category (e.g. after a page reload).
     unmount();
     fetchMock.mockClear();
 
     const { result: result2 } = renderHook(() => useStumble(fetchMock, "test"));
-    
+
     // The history param should already contain the seen ID from sessionStorage
     // But the new fetch happens BEFORE markSeen is called on the new ID.
     // So history should just be "1".
     await act(async () => {
       await result2.current.fetchStumble();
     });
-    
+
     // Restored from sessionStorage: the *very first* request after remount must
     // already carry the previously-seen id, so the backend won't re-serve it.
     // A regression to load-then-clear would send "/stumble?category=test" with

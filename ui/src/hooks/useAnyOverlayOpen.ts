@@ -13,8 +13,7 @@ export function useAnyOverlayOpen(): boolean {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const check = () =>
-      setOpen(!!document.querySelector(OVERLAY_SELECTOR));
+    const check = () => setOpen(!!document.querySelector(OVERLAY_SELECTOR));
     check();
     const observer = new MutationObserver(check);
     observer.observe(document.body, { childList: true, subtree: true });

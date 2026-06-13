@@ -15,13 +15,13 @@ prototype; the real target ships via **Capacitor** (Android; iOS deferred, no Ma
 **Current focus — Browse v2 / Reels-first mobile (epic #295/#278) — core loop SHIPPED to master.** Each
 stumble's live site renders in a native WebView (`@teamhive/capacitor-webview-overlay`,
 `ui/src/components/LiveFeed.tsx`); swipe/Next through live sites. The model (tester-confirmed): **on
-native there is no separate "reel mode" — mobile *is* the full app, the live site renders inline in the
+native there is no separate "reel mode" — mobile _is_ the full app, the live site renders inline in the
 content area with the header always above it** (card + reader view is web-only). Merged so far:
 reels-default inline + swipe handle + haptics + scroll fix + menu/modal layering (**#296**); an
 **immersive (hide-chrome) toggle** that full-screens the live site (header + action bar hide, the
 overlay's `ResizeObserver` resizes the native view, a thin restore strip brings chrome back); a
 **page-enhancement injection** (`ENHANCE_PAGE` in LiveFeed) — mobile-friendly normalization
-(text-size-adjust, max-width media, no h-overflow) + *conservative* cosmetic ad/cookie-wall/popup hiding
+(text-size-adjust, max-width media, no h-overflow) + _conservative_ cosmetic ad/cookie-wall/popup hiding
 (precise selectors only, never broad `*=ad*`, never body scroll-lock classes, force scroll back on); and
 the **reader toggle for articles (#284)** — flips an article's live site to our clean `ReaderView`
 inline, keyed on url so it auto-resets on Next. **Next:** **M4** content-safety gate (launch blocker,
@@ -48,6 +48,7 @@ Run both: `cd app && npm start` then `cd ui && npm run dev`.
 ## ⚙️ Two-agent workflow (senior = Claude/Hisham, junior = Gemini bot)
 
 This repo is developed by **two AI agents**:
+
 - **Senior (Claude, as `H1shamM`, this machine)** — scopes work into GitHub issues, reviews PRs,
   and is the only one who merges. Owns architecture/security/cross-cutting work.
 - **Junior (`H1shamM-bot`, Gemini Flash Lite, on a separate laptop)** — picks up small
@@ -55,9 +56,10 @@ This repo is developed by **two AI agents**:
   to `master` or merge** (Write-only collaborator + branch protection; proven).
 
 Mechanics:
+
 - `master` branch protection: PR required + CI green (`test (app)` + `test (ui)`) + 1 code-owner
   review (CODEOWNERS = `@H1shamM`). Admin bypass is ON for the owner (so the senior can admin-merge
-  its *own* PRs since it can't self-approve).
+  its _own_ PRs since it can't self-approve).
 - Junior tasks = GitHub issues labeled **`gemini-ready`**, assigned to `H1shamM-bot`, written with the
   `.github/ISSUE_TEMPLATE/gemini-task.md` template (atomic, explicit file allowlist, acceptance
   criteria, "do not merge"). The junior's hard rules live in `GEMINI.md` (root).
@@ -108,6 +110,7 @@ to random. Spacebar = next; rating shows a toast.
 
 `npm run build` ✓, lint ✓, typecheck (`tsc -b`) ✓, full test suite ✓ (app 101, ui 99 — green
 locally and in CI).
+
 - **CI** (Node 24) is split into three workflows — `lint.yml` (eslint + typecheck), `tests.yml`
   (test + coverage), `guards.yml` (no committed `*.log`); required checks `lint (app)`/`lint (ui)`/
   `test (app)`/`test (ui)`/`guards`. **Coverage is gated** via `thresholds` in each `vitest.config.ts`
@@ -115,7 +118,7 @@ locally and in CI).
 - If you add a dep and CI's `npm ci` complains "lock out of sync", regenerate the lock fully:
   `rm <pkg>/package-lock.json <pkg>/node_modules && npm install`.
 - **Tailwind v4** is wired via `@tailwindcss/vite` in `ui/vite.config.ts` (without it `@import
-  "tailwindcss"` is inert and the app renders with zero CSS — the original "terrible UI"). The reader
+"tailwindcss"` is inert and the app renders with zero CSS — the original "terrible UI"). The reader
   prose uses `@tailwindcss/typography` (`@plugin` in `globals.css`).
 - `ui/tsconfig.app.json` has `"ignoreDeprecations": "6.0"` (baseUrl under TS 6).
 
@@ -133,7 +136,9 @@ locally and in CI).
 - **DB tests must be hermetic** (#306): construct `SqliteAdapter`/`Database` with `":memory:"` and
   `close()` in `afterEach`/`afterAll`. Never use a shared on-disk `test_*.db` — the open handle fails
   `unlink` on Windows (`EBUSY`), leaving stateful files that pass in CI's clean checkout but fail locally.
-- Husky + lint-staged pre-commit (eslint --fix). Prettier for formatting.
+- Husky + lint-staged pre-commit (eslint --fix + prettier --write). Prettier (defaults, no
+  `.prettierrc`) is the format gate — CI's `guards` job runs `npm run format:check`; `.prettierignore`
+  excludes generated/vendor (android, dist, coverage, lockfiles).
 - Local helper scripts (`shot.mjs`, `walkthrough.mjs`, `diag.mjs`, `*.png`) are gitignored.
 
 ## UI/UX standards (from GEMINI.md)

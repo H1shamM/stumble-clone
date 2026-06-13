@@ -6,8 +6,16 @@ import type { ExplainerScene } from "../hooks/useExplainer";
 afterEach(cleanup);
 
 const scenes: ExplainerScene[] = [
-  { heading: "We tried to kill it", body: "Boiled, frozen, irradiated.", emoji: "🐻" },
-  { heading: "The off switch", body: "It turns its insides to glass.", emoji: "🧊" },
+  {
+    heading: "We tried to kill it",
+    body: "Boiled, frozen, irradiated.",
+    emoji: "🐻",
+  },
+  {
+    heading: "The off switch",
+    body: "It turns its insides to glass.",
+    emoji: "🧊",
+  },
   { heading: "Tested in space", body: "It came back fine.", emoji: "🚀" },
 ];
 
@@ -24,10 +32,14 @@ describe("SceneReel", () => {
   it("renders cover, scenes and recap with counter", () => {
     render(<SceneReel {...baseProps} />);
     // Cover title + first scene + recap key points all present in the track.
-    expect(screen.getByText("The Animal That Refuses to Die")).toBeInTheDocument();
+    expect(
+      screen.getByText("The Animal That Refuses to Die"),
+    ).toBeInTheDocument();
     expect(screen.getByText("We tried to kill it")).toBeInTheDocument();
     expect(screen.getByText("Tested in space")).toBeInTheDocument();
-    expect(screen.getByText("Smaller than a grain of salt")).toBeInTheDocument();
+    expect(
+      screen.getByText("Smaller than a grain of salt"),
+    ).toBeInTheDocument();
     // cover + 3 scenes + recap = 5 slides
     expect(screen.getAllByText("1 / 5").length).toBeGreaterThan(0);
   });
@@ -36,9 +48,7 @@ describe("SceneReel", () => {
     render(<SceneReel {...baseProps} />);
     fireEvent.click(screen.getByRole("button", { name: "Next →" }));
     expect(screen.getAllByText("2 / 5").length).toBeGreaterThan(0);
-    expect(
-      screen.getByRole("button", { name: "← Back" }),
-    ).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "← Back" })).not.toBeDisabled();
   });
 
   it("disables Back on the first slide", () => {

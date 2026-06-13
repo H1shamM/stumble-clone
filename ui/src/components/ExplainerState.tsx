@@ -5,7 +5,11 @@ import { AlertTriangle } from "lucide-react";
 
 export function ExplainerSkeleton() {
   return (
-    <Card className="flex flex-col gap-4 p-6" role="status" aria-label="Loading explainer">
+    <Card
+      className="flex flex-col gap-4 p-6"
+      role="status"
+      aria-label="Loading explainer"
+    >
       <Skeleton className="h-64 w-full rounded-lg" />
       <Skeleton className="h-6 w-2/3" />
       <Skeleton className="h-4 w-1/2" />
@@ -13,7 +17,11 @@ export function ExplainerSkeleton() {
   );
 }
 
-export function ExplainerUnavailableCard({ onRetry }: { onRetry?: () => void }) {
+export function ExplainerUnavailableCard({
+  onRetry,
+}: {
+  onRetry?: () => void;
+}) {
   return (
     <Card className="flex flex-col items-center gap-4 p-10 text-center">
       <div className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">

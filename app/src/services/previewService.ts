@@ -22,7 +22,10 @@ export interface PreviewResult {
 }
 
 /** Resolve a possibly-relative URL against the page URL; null on failure. */
-function absolutize(value: string | null | undefined, base: string): string | null {
+function absolutize(
+  value: string | null | undefined,
+  base: string,
+): string | null {
   if (!value) return null;
   try {
     return new URL(value, base).href;

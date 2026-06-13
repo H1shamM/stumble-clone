@@ -27,7 +27,7 @@ export class WibySource implements ContentFetcher {
 
       // Wiby surprise usually redirects to the actual page
       const url = response.headers.get("Location") || response.url;
-      
+
       if (!url) return null;
 
       return {

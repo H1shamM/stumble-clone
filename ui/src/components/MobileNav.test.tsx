@@ -13,7 +13,9 @@ describe("MobileNav", () => {
 
     // Verify all categories are listed
     for (const cat of CATEGORIES) {
-      expect(screen.getByRole("button", { name: cat.label })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: cat.label }),
+      ).toBeInTheDocument();
     }
   });
 

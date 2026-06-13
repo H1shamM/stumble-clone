@@ -18,7 +18,11 @@ const draft = {
   summary: "A speck-sized animal that shrugs off almost anything.",
   keyPoints: ["smaller than a grain of salt", "survives space"],
   scenes: [
-    { heading: "It refused to die", body: "Boiled, frozen, irradiated.", emoji: "🐻" },
+    {
+      heading: "It refused to die",
+      body: "Boiled, frozen, irradiated.",
+      emoji: "🐻",
+    },
     { heading: "The off switch", body: "It turns its insides to glass." }, // emoji omitted
   ],
 };

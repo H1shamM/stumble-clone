@@ -22,9 +22,12 @@ describe("EnrichmentPanel", () => {
     expect(screen.getByText(mockEnrichment.summary)).toBeInTheDocument();
     expect(screen.getByText("Point 1")).toBeInTheDocument();
     expect(screen.getByText("Point 2")).toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAttribute("src", mockEnrichment.image);
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      mockEnrichment.image,
+    );
     expect(screen.getByText(mockEnrichment.provenance)).toBeInTheDocument();
-    
+
     const link = screen.getByRole("link", { name: /read the original/i });
     expect(link).toHaveAttribute("href", mockEnrichment.sourceUrl);
   });

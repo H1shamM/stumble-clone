@@ -23,7 +23,11 @@ const draft = {
   summary: "Magma rises, pressure wins.",
   keyPoints: ["a", "b"],
   scenes: [
-    { heading: "Pressure builds", body: "Gas and magma stack up.", emoji: "🌋" },
+    {
+      heading: "Pressure builds",
+      body: "Gas and magma stack up.",
+      emoji: "🌋",
+    },
     { heading: "It blows", body: "The cap fails.", emoji: "💥" },
   ],
 };
@@ -33,7 +37,11 @@ describe("enrichReader", () => {
 
   it("returns an explainer with scenes, image, provenance and source url", async () => {
     const llm: ExplainerLLM = { summarize: vi.fn().mockResolvedValue(draft) };
-    const result = await enrichReader(reader(), "https://earth.example/volcanoes", llm);
+    const result = await enrichReader(
+      reader(),
+      "https://earth.example/volcanoes",
+      llm,
+    );
 
     expect(result).not.toBeNull();
     expect(result!.summary).toBe("Magma rises, pressure wins.");
@@ -90,15 +98,25 @@ describe("enrichReader", () => {
     const llm: ExplainerLLM = {
       summarize: vi.fn().mockRejectedValue(new Error("rate limited")),
     };
-    const result = await enrichReader(reader(), "https://earth.example/fail", llm);
+    const result = await enrichReader(
+      reader(),
+      "https://earth.example/fail",
+      llm,
+    );
     expect(result).toBeNull();
   });
 
   it("returns null on an empty summary", async () => {
     const llm: ExplainerLLM = {
-      summarize: vi.fn().mockResolvedValue({ summary: "   ", keyPoints: [], scenes: [] }),
+      summarize: vi
+        .fn()
+        .mockResolvedValue({ summary: "   ", keyPoints: [], scenes: [] }),
     };
-    const result = await enrichReader(reader(), "https://earth.example/empty", llm);
+    const result = await enrichReader(
+      reader(),
+      "https://earth.example/empty",
+      llm,
+    );
     expect(result).toBeNull();
   });
 });
@@ -106,7 +124,9 @@ describe("enrichReader", () => {
 describe("firstImage", () => {
   it("extracts the first absolute image src", () => {
     expect(
-      firstImage('<p>x</p><img src="https://x.test/a.png" /><img src="https://x.test/b.png" />'),
+      firstImage(
+        '<p>x</p><img src="https://x.test/a.png" /><img src="https://x.test/b.png" />',
+      ),
     ).toBe("https://x.test/a.png");
   });
 

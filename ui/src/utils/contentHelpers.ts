@@ -39,7 +39,11 @@ export function truncate(text: string, max: number): string {
   return text.slice(0, max - 1) + "…";
 }
 
-export function pluralize(count: number, singular: string, plural?: string): string {
+export function pluralize(
+  count: number,
+  singular: string,
+  plural?: string,
+): string {
   const word = count === 1 ? singular : plural || `${singular}s`;
   return `${count} ${word}`;
 }

@@ -1,0 +1,20 @@
+# Dependencies & build output
+node_modules/
+**/node_modules/
+**/dist/
+**/build/
+**/coverage/
+
+# Generated native projects
+ui/android/
+ui/ios/
+
+# Lockfiles (huge, machine-generated)
+package-lock.json
+**/package-lock.json
+
+# Data & binaries
+*.db
+*.png
+*.ico
+*.svg

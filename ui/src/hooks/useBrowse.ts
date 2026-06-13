@@ -14,9 +14,8 @@ import { Capacitor } from "@capacitor/core";
 export function useBrowse() {
   const open = useCallback(async (url: string) => {
     if (Capacitor.isNativePlatform()) {
-      const { InAppBrowser, DefaultWebViewOptions } = await import(
-        "@capacitor/inappbrowser"
-      );
+      const { InAppBrowser, DefaultWebViewOptions } =
+        await import("@capacitor/inappbrowser");
       await InAppBrowser.openInWebView({
         url,
         options: { ...DefaultWebViewOptions, showURL: true },

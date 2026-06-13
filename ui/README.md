@@ -16,13 +16,13 @@ Run the backend separately: `cd ../app && npm start`.
 
 ## Scripts
 
-| Command | Purpose |
-| --- | --- |
-| `npm run dev` | Vite dev server (HMR) |
-| `npm run build` | `tsc -b && vite build` |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | `tsc -b` |
-| `npm test` | Vitest (React Testing Library) |
+| Command             | Purpose                        |
+| ------------------- | ------------------------------ |
+| `npm run dev`       | Vite dev server (HMR)          |
+| `npm run build`     | `tsc -b && vite build`         |
+| `npm run lint`      | ESLint                         |
+| `npm run typecheck` | `tsc -b`                       |
+| `npm test`          | Vitest (React Testing Library) |
 
 ## Notes
 

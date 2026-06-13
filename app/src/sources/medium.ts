@@ -52,7 +52,7 @@ export class MediumSource implements ContentFetcher {
           const description =
             descMatch?.[1]?.replace(/<[^>]*>/g, "").slice(0, 200) ||
             "Medium story";
-          
+
           if (looksEnglish(`${title} ${description}`)) {
             candidates.push({
               title,

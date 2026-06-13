@@ -5,9 +5,15 @@ import type { ReactNode } from "react";
 
 // Mock Radix UI's DropdownMenu components to just render children
 vi.mock("@/components/ui/dropdown-menu", () => ({
-  DropdownMenu: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DropdownMenuTrigger: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-  DropdownMenuContent: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  DropdownMenu: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuTrigger: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  DropdownMenuContent: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
   DropdownMenuItem: ({
     onClick,
     children,
@@ -31,7 +37,7 @@ describe("Header", () => {
         searchQuery=""
         onSearchQueryChange={vi.fn()}
         onSearchSubmit={vi.fn()}
-      />
+      />,
     );
 
     const logoutButtons = screen.getAllByRole("button", { name: /Logout/i });

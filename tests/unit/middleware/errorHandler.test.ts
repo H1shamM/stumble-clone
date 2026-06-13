@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { errorHandler, AppError } from "../../../app/src/middleware/errorHandler.js";
+import {
+  errorHandler,
+  AppError,
+} from "../../../app/src/middleware/errorHandler.js";
 import { Request, Response } from "express";
 
 describe("errorHandler", () => {

@@ -10,15 +10,15 @@ on `article`-type assets, is cached per `(url, promptVersion)`, and appears as a
 third mode in the existing `ViewModeToggle` (Reader / Live / **Explainer**).
 
 **Why now:** Directly targets the Sprint-7 open lever ("content under-sells →
-convert *maybe send* to *send*"). A reel is more shareable than a plain reader
+convert _maybe send_ to _send_"). A reel is more shareable than a plain reader
 view, on the article slice.
 
 ---
 
 ## Architecture fit (decisions to lock before issues)
 
-1. **Reuse, don't re-fetch.** The explainer's text input is the *already extracted,
-   sanitized* article from `readerService` — not a second network fetch. The
+1. **Reuse, don't re-fetch.** The explainer's text input is the _already extracted,
+   sanitized_ article from `readerService` — not a second network fetch. The
    service composes `readerService.extract(url)` → text → `EnrichmentService`.
    Keeps the SSRF guard (`utils/urlGuard.ts`) and the <400-char / 422 behaviour
    for free.
@@ -46,6 +46,7 @@ view, on the article slice.
 > until CI green + acceptance met.
 
 ### B1 — Explainer port, Claude adapter, versioned prompt `[senior]`
+
 - **Files:** `app/src/services/enrichmentService.ts` (port + `EnrichmentDraft`/`Scene`
   types), `app/src/adapters/claudeExplainer.ts`, `app/src/prompts/explainerPrompt.ts`.
 - **Scope:** `EnrichmentService` interface with `summarize({title,text}) → EnrichmentDraft`.
@@ -64,14 +65,16 @@ view, on the article slice.
 - **Acceptance:** unit tests pass; no secrets committed (key from `process.env`).
 
 ### B2 — Explainer cache (SQLite) `[gemini-ready, depends: B1]`
+
 - **Files:** `app/src/bootstrap.ts` (or migration) for the table; `app/src/repositories/explainerRepo.ts`; test in `tests/unit/`.
 - **Scope:** `explainer_cache(url TEXT, prompt_version TEXT, draft_json TEXT,
-  created_at INTEGER, PRIMARY KEY(url, prompt_version))`. Repo: `get(url, version)`,
+created_at INTEGER, PRIMARY KEY(url, prompt_version))`. Repo: `get(url, version)`,
   `put(url, version, draft)`.
 - **Acceptance:** hit returns stored draft; miss returns null; a different
   `prompt_version` is a miss (old rows ignored). Unit test covers all three.
 
 ### B3 — Compose reader extraction → explainer service `[senior, depends: B1,B2]`
+
 - **Files:** `app/src/services/explainerService.ts`; test in `tests/unit/`.
 - **Scope:** `explain(url)`: classify (article-only, else throw `NotArticleError`) →
   cache lookup (B2) → on miss, `readerService.extract(url)` for clean text →
@@ -80,6 +83,7 @@ view, on the article slice.
   from cache (assert the adapter is called once); non-article throws `NotArticleError`.
 
 ### B4 — `GET /api/v1/explainer?url=` controller + route `[gemini-ready, depends: B3]`
+
 - **Files:** `app/src/controllers/explainerController.ts`; route registration where
   `reader`/`preview` routes live; test in `tests/unit/`.
 - **Scope:** mirror `readerController` contract — 200 + draft JSON; **422** for
@@ -88,6 +92,7 @@ view, on the article slice.
 - **Acceptance:** controller tests for 200 / 422 / 503 paths.
 
 ### F1 — `useExplainer` hook `[gemini-ready]`
+
 - **Files:** `ui/src/hooks/useExplainer.ts`; test in `tests/` (or co-located per repo
   convention).
 - **Scope:** mirror `useReader`/`usePreview`: takes a url, exposes
@@ -96,6 +101,7 @@ view, on the article slice.
 - **Acceptance:** hook test with mocked fetch for loading → success and 422 states.
 
 ### F2 — Port `SceneReel` into `ui/` with repo design tokens `[gemini-ready, depends: F1]`
+
 - **Files:** `ui/src/components/SceneReel.tsx` (+ `.module.css` or Tailwind),
   component test.
 - **Scope:** adapt the standalone `SceneReel` (provided separately) to the repo's
@@ -107,6 +113,7 @@ view, on the article slice.
   asserts aria-labels (`Previous slide`/`Next slide`) and calls `afterEach(cleanup)`.
 
 ### F3 — Wire Explainer into `StumbleArea` + `ViewModeToggle` `[senior, depends: F1,F2]`
+
 - **Files:** `ui/src/components/StumbleArea.tsx`, the `ViewModeToggle` component,
   related test(s).
 - **Scope:** add **Explainer** as a third mode, shown only for `article` assets next
@@ -118,19 +125,22 @@ view, on the article slice.
   / toggle assertions).
 
 ### F4 — Skeleton + unavailable card `[gemini-ready, depends: F2]`
+
 - **Files:** small additions to `SceneReel.tsx` / a shared card; test.
 - **Scope:** layout-matched skeleton during generation; graceful unavailable state.
 - **Acceptance:** skeleton shows while `loading`; unavailable card on 422.
 
 ### P1 — Prefetch next stumble's explainer `[senior, depends: B4,F1]`
+
 - **Files:** `ui/src/hooks/useStumble.ts` (already tracks seen ids / next), wiring.
 - **Scope:** when the current asset is an article, warm `/api/v1/explainer` for the
-  *next* queued asset in the background so the reel is instant on switch. Respect the
+  _next_ queued asset in the background so the reel is instant on switch. Respect the
   source cooldown / dedup logic already there.
 - **Acceptance:** network panel shows a background explainer call for the next asset;
   no change to stumble timing.
 
 ### P2 — Feedback + format-mix telemetry `[gemini-ready, depends: F3]`
+
 - **Files:** rating handler + a lightweight event log; test.
 - **Scope:** thumbs on an Explainer view feed the existing category/source pref weights
   (`discoveryService` weighting); log Explainer-vs-Reader selection so the
@@ -165,6 +175,7 @@ after B4 unblocks the frontend wiring.
 - Secrets: `ANTHROPIC_API_KEY` from env only; never commit it; document it in `.env.example`.
 
 ## Cost / safety notes
+
 - Haiku 4.5 + one cached call per article keeps cost bounded; cache makes repeat
   stumbles free.
 - Keep the rich reel pointed at Wikipedia / openly-licensed sources (CC BY-SA footer
@@ -174,4 +185,7 @@ after B4 unblocks the frontend wiring.
   treats a tragedy like a fun fact. Add a unit test with a grim sample title that
   asserts the prompt path is exercised (and review real output on a few somber
   articles before shipping).
+
+```
+
 ```

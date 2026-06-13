@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { getFaviconUrl, estimateReadingTime, getDomainFromUrl, truncate, pluralize } from "./contentHelpers";
+import {
+  getFaviconUrl,
+  estimateReadingTime,
+  getDomainFromUrl,
+  truncate,
+  pluralize,
+} from "./contentHelpers";
 
 describe("contentHelpers", () => {
   it("should return correct favicon URL for known sources", () => {
@@ -32,8 +38,12 @@ describe("contentHelpers", () => {
   });
 
   it("should extract domain from URL", () => {
-    expect(getDomainFromUrl("https://www.google.com/search?q=test")).toBe("google.com");
-    expect(getDomainFromUrl("https://github.com/H1shamM/stumble-clone")).toBe("github.com");
+    expect(getDomainFromUrl("https://www.google.com/search?q=test")).toBe(
+      "google.com",
+    );
+    expect(getDomainFromUrl("https://github.com/H1shamM/stumble-clone")).toBe(
+      "github.com",
+    );
   });
 
   it("should return empty string for invalid URL", () => {

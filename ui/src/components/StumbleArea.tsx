@@ -84,7 +84,9 @@ export function StumbleArea({
   onClose,
   onIframeLoad,
 }: StumbleAreaProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>(() => defaultMode(current));
+  const [viewMode, setViewMode] = useState<ViewMode>(() =>
+    defaultMode(current),
+  );
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [prevId, setPrevId] = useState<string | undefined>(current?.id);
 

@@ -10,7 +10,7 @@ describe("YoutubeSource", () => {
     expect(asset?.source).toBe("YouTube");
     expect(asset?.url).toMatch(/^https:\/\/www\.youtube\.com\/watch\?v=/);
     expect(asset?.proxyUrl).toMatch(/^https:\/\/www\.youtube\.com\/embed\//);
-    
+
     // Check that the ID in watch URL matches embed URL
     const watchId = asset?.url.split("v=")[1];
     const embedId = asset?.proxyUrl?.split("/embed/")[1];

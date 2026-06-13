@@ -12,14 +12,14 @@ StumbleClone aims to provide a fast, reliable, and serendipitous discovery engin
 
 ## ✨ Features (v2.0)
 
-| Feature                     | Description                                              |
-| :-------------------------- | :------------------------------------------------------- |
-| **Serendipitous Discovery** | Weighted-random engine with URL dedup, per-session dedup, and per-source cooldown for variety. |
+| Feature                     | Description                                                                                                                                        |
+| :-------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Serendipitous Discovery** | Weighted-random engine with URL dedup, per-session dedup, and per-source cooldown for variety.                                                     |
 | **In-App Reading**          | Reader-first view extracts & sanitizes the article; **type-aware rendering** (article → reader, video → player, image/interactive → preview card). |
-| **PWA Native Feel**         | Installable, offline-capable, and mobile-optimized.      |
-| **Social Auth**             | Secure, seamless login via Google or GitHub (OAuth2).    |
-| **Community Driven**        | Users can submit high-quality links for moderation.      |
-| **Scalable Architecture**   | Hexagonal design ensures maintainability and modularity. |
+| **PWA Native Feel**         | Installable, offline-capable, and mobile-optimized.                                                                                                |
+| **Social Auth**             | Secure, seamless login via Google or GitHub (OAuth2).                                                                                              |
+| **Community Driven**        | Users can submit high-quality links for moderation.                                                                                                |
+| **Scalable Architecture**   | Hexagonal design ensures maintainability and modularity.                                                                                           |
 
 > **🧭 Direction (Content & Rendering v2):** StumbleClone is evolving from a web prototype toward a
 > **mobile discovery app**. Current focus is a curated, channel-organized content library and

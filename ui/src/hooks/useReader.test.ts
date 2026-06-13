@@ -26,7 +26,7 @@ describe("useReader", () => {
     });
 
     const { result } = renderHook(() =>
-      useReader(mockAuthenticatedFetch, "https://example.com")
+      useReader(mockAuthenticatedFetch, "https://example.com"),
     );
 
     expect(result.current.loading).toBe(true);
@@ -42,7 +42,7 @@ describe("useReader", () => {
     });
 
     const { result } = renderHook(() =>
-      useReader(mockAuthenticatedFetch, "https://example.com")
+      useReader(mockAuthenticatedFetch, "https://example.com"),
     );
 
     await waitFor(() => expect(result.current.loading).toBe(false));

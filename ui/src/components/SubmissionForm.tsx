@@ -27,11 +27,14 @@ export function SubmissionForm({ onSuccess, authenticatedFetch }: Props) {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await authenticatedFetch("http://localhost:3000/api/v1/submissions", {
-        method: "POST",
-        body: JSON.stringify({ url, title }),
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await authenticatedFetch(
+        "http://localhost:3000/api/v1/submissions",
+        {
+          method: "POST",
+          body: JSON.stringify({ url, title }),
+          headers: { "Content-Type": "application/json" },
+        },
+      );
       if (!res.ok) {
         addToast("Submission failed", "error");
         return;

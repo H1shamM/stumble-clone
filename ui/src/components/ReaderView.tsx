@@ -7,7 +7,12 @@ interface ReaderViewProps {
   content: string; // sanitized HTML from the backend
 }
 
-export function ReaderView({ title, byline, siteName, content }: ReaderViewProps) {
+export function ReaderView({
+  title,
+  byline,
+  siteName,
+  content,
+}: ReaderViewProps) {
   return (
     <Card className="w-full">
       <CardHeader>

@@ -26,7 +26,14 @@ const fakeService = (explain: () => Promise<unknown>) =>
 
 describe("ExplainerController.read (#219)", () => {
   it("200s with the draft on success", async () => {
-    const draft = { summary: "x", keyPoints: [], scenes: [], image: null, provenance: "p", sourceUrl: URL };
+    const draft = {
+      summary: "x",
+      keyPoints: [],
+      scenes: [],
+      image: null,
+      provenance: "p",
+      sourceUrl: URL,
+    };
     const res = makeRes();
     const ctrl = new ExplainerController(fakeService(async () => draft));
 
@@ -37,7 +44,9 @@ describe("ExplainerController.read (#219)", () => {
 
   it("400 when url is missing", async () => {
     const ctrl = new ExplainerController(fakeService(async () => ({})));
-    await expect(ctrl.read(makeReq(undefined), makeRes())).rejects.toMatchObject({
+    await expect(
+      ctrl.read(makeReq(undefined), makeRes()),
+    ).rejects.toMatchObject({
       statusCode: 400,
     });
   });
@@ -112,7 +121,10 @@ describe("ExplainerController.rate (#225)", () => {
     const { service } = fakeDiscovery();
     const ctrl = new ExplainerController(null, service);
     await expect(
-      ctrl.rate(makeRateReq({ assetId: "a1", isPositive: true }), makeRateRes()),
+      ctrl.rate(
+        makeRateReq({ assetId: "a1", isPositive: true }),
+        makeRateRes(),
+      ),
     ).rejects.toMatchObject({ statusCode: 401 });
   });
 

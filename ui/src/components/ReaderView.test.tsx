@@ -12,7 +12,11 @@ describe("ReaderView", () => {
 
   it("shows the siteName", () => {
     render(
-      <ReaderView title="Test Title" siteName="Test Site" content="<p>Content</p>" />
+      <ReaderView
+        title="Test Title"
+        siteName="Test Site"
+        content="<p>Content</p>"
+      />,
     );
     expect(screen.getByText("Test Site")).toBeInTheDocument();
   });

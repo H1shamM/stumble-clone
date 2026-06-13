@@ -36,7 +36,9 @@ describe("useExplainer", () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    expect(fetchMock).toHaveBeenCalledWith(`/explainer?url=${encodeURIComponent(url)}`);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/explainer?url=${encodeURIComponent(url)}`,
+    );
     expect(result.current.data).toEqual(mockData);
     expect(result.current.error).toBeNull();
   });

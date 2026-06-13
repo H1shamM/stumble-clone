@@ -6,7 +6,8 @@
     "lint": "cd app && npm run lint && cd ../ui && npm run lint",
     "test": "cd app && npm run test && cd ../ui && npm run test -- --run",
     "test:coverage": "cd app && npx vitest run --coverage && cd ../ui && npx vitest run --coverage",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
@@ -23,11 +24,16 @@
   "lint-staged": {
     "app/**/*.{js,ts}": [
       "eslint --fix",
+      "prettier --write",
       "bash -c \"cd app && if npm run typecheck --if-present; then echo ''; else echo 'No typecheck script'; fi\""
     ],
     "ui/**/*.{js,jsx,ts,tsx}": [
       "eslint --fix",
+      "prettier --write",
       "bash -c \"cd ui && if npm run typecheck --if-present; then echo ''; else echo 'No typecheck script'; fi\""
+    ],
+    "**/*.{json,md,css,yml,yaml}": [
+      "prettier --write"
     ]
   }
 }

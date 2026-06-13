@@ -8,7 +8,9 @@ vi.mock("@capacitor/core", () => ({
 
 const openInWebView = vi.fn();
 vi.mock("@capacitor/inappbrowser", () => ({
-  InAppBrowser: { openInWebView: (...args: unknown[]) => openInWebView(...args) },
+  InAppBrowser: {
+    openInWebView: (...args: unknown[]) => openInWebView(...args),
+  },
   DefaultWebViewOptions: { showURL: false, android: {}, iOS: {} },
 }));
 

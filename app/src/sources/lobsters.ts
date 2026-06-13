@@ -7,14 +7,21 @@ export class LobstersSource implements ContentFetcher {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async fetchStumble(category: string): Promise<StumbleAsset | null> {
     try {
-      const res = await fetchWithTimeout("https://lobste.rs/hottest.json", {}, 5000);
+      const res = await fetchWithTimeout(
+        "https://lobste.rs/hottest.json",
+        {},
+        5000,
+      );
       if (!res.ok) return null;
 
       const stories = await res.json();
       if (!Array.isArray(stories) || stories.length === 0) return null;
 
-      const story = stories[Math.floor(Math.random() * Math.min(stories.length, 25))];
-      const url = story.url || (story.short_id ? `https://lobste.rs/s/${story.short_id}` : null);
+      const story =
+        stories[Math.floor(Math.random() * Math.min(stories.length, 25))];
+      const url =
+        story.url ||
+        (story.short_id ? `https://lobste.rs/s/${story.short_id}` : null);
 
       if (!url) return null;
 

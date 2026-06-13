@@ -18,3 +18,10 @@ jobs:
             exit 1
           fi
           echo "OK — no committed *.log files."
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Prettier config lives at the repo root, so format-check runs once here.
+      - run: npm ci
+      - name: Format check
+        run: npm run format:check

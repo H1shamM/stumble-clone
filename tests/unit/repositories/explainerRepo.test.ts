@@ -34,7 +34,9 @@ describe("SqliteExplainerRepo", () => {
   it("upserts (no duplicate-key throw) when re-putting the same key", () => {
     repo.put("https://example.com/a", "v1", draft);
     const updated: EnrichmentDraft = { ...draft, summary: "Revised summary." };
-    expect(() => repo.put("https://example.com/a", "v1", updated)).not.toThrow();
+    expect(() =>
+      repo.put("https://example.com/a", "v1", updated),
+    ).not.toThrow();
     expect(repo.get("https://example.com/a", "v1")?.summary).toBe(
       "Revised summary.",
     );

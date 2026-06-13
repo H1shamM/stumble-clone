@@ -52,14 +52,11 @@ skip a step, this document wins. Point me here.
 - **`tests`** (`test (app)` / `test (ui)`) — `npm test -- --coverage` per package.
   Fails on a red test **and if coverage drops** below the committed floor (thresholds
   live in each package's vitest config).
-- **`guards`** — fails if any `*.log` file is committed.
+- **`guards`** — fails if any `*.log` file is committed, and runs the repo-wide
+  **Prettier format check** (`npm run format:check`) — a PR with unformatted files fails.
 
-Locally, **husky + lint-staged** run `eslint --fix` + typecheck on staged files before
-each commit.
-
-> **Pending:** a **Prettier** formatting gate (one-shot reformat + `format:check` +
-> pre-commit prettier) is tracked in its own issue — see #313. Until it lands, eslint
-> is the style gate. Do not claim a format gate exists before that PR merges.
+Locally, **husky + lint-staged** run `eslint --fix` + `prettier --write` + typecheck on
+staged files before each commit, so formatting is applied automatically.
 
 Coverage baselines (raise only upward): **UI — statements ≥ 73 / branches ≥ 74 /
 functions ≥ 64 / lines ≥ 75.** **App — thresholds set once the hermetic-fixtures fix

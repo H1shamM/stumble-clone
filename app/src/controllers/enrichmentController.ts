@@ -2,7 +2,10 @@ import type { Request, Response } from "express";
 import { fetchHtml } from "../utils/fetchHtml.js";
 import { assertPublicHttpUrl } from "../utils/urlGuard.js";
 import { extractReadable } from "../services/readerService.js";
-import { enrichReader, type ExplainerLLM } from "../services/enrichmentService.js";
+import {
+  enrichReader,
+  type ExplainerLLM,
+} from "../services/enrichmentService.js";
 import { AppError } from "../middleware/errorHandler.js";
 
 /**

@@ -46,23 +46,28 @@ export function useStumble(
     if (prevCategory.current === category) return;
     prevCategory.current = category;
 
-     
     setNextStumble(null);
     seenIdsRef.current = [];
     warmedRef.current.clear();
     sessionStorage.removeItem(storageKey);
   }, [category, storageKey]);
 
-  const markSeen = useCallback((id: string) => {
-    if (id && !seenIdsRef.current.includes(id)) {
-      seenIdsRef.current.push(id);
-      try {
-        sessionStorage.setItem(storageKey, JSON.stringify(seenIdsRef.current));
-      } catch (e) {
-        console.warn("Could not persist stumble history", e);
+  const markSeen = useCallback(
+    (id: string) => {
+      if (id && !seenIdsRef.current.includes(id)) {
+        seenIdsRef.current.push(id);
+        try {
+          sessionStorage.setItem(
+            storageKey,
+            JSON.stringify(seenIdsRef.current),
+          );
+        } catch (e) {
+          console.warn("Could not persist stumble history", e);
+        }
       }
-    }
-  }, [storageKey]);
+    },
+    [storageKey],
+  );
 
   const historyParam = useCallback(() => {
     const seen = seenIdsRef.current;

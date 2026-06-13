@@ -18,7 +18,7 @@ export function EnrichmentPanel({ enrichment }: EnrichmentPanelProps) {
       )}
       <h2 className="text-xl font-semibold">AI Summary</h2>
       <p className="text-sm text-muted-foreground">{enrichment.summary}</p>
-      
+
       {enrichment.keyPoints.length > 0 && (
         <div className="space-y-2">
           <h3 className="font-medium">Key Points</h3>
@@ -29,9 +29,11 @@ export function EnrichmentPanel({ enrichment }: EnrichmentPanelProps) {
           </ul>
         </div>
       )}
-      
-      <p className="text-xs text-muted-foreground italic">{enrichment.provenance}</p>
-      
+
+      <p className="text-xs text-muted-foreground italic">
+        {enrichment.provenance}
+      </p>
+
       <a
         href={enrichment.sourceUrl}
         target="_blank"

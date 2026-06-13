@@ -24,7 +24,7 @@ existing `ui/` React app — wrap, do not rewrite.
 An `<iframe>` inside the Capacitor app **still hits X-Frame-Options / CSP** — the app
 shell is itself a WebView, so framing rules still apply. Header-stripping hacks
 (`capacitor-plugin-xframe`) are fragile, Android-only, and weaken security — **do not
-use**. The supported way to render an un-iframable site "inside the app" is a *native*
+use**. The supported way to render an un-iframable site "inside the app" is a _native_
 browser surface via **`@capacitor/inappbrowser`** (WebView mode, or a Custom Tab /
 SFSafariViewController sheet). That's a real browser instance, not an embedded frame.
 
@@ -38,7 +38,7 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 - **Articles do not use the WebView** — they keep the native reader / explainer reel
   (better than a WebView of desktop Wikipedia on a phone). WebView is for
   `interactive` / `image` / non-article `video` assets.
-- React Native is the fallback **only** if you later need the page embedded *within*
+- React Native is the fallback **only** if you later need the page embedded _within_
   your own layout with native gestures over it (embedded-BrowserView plugins are still
   beta/Android-only). Not needed for v1.
 
@@ -47,6 +47,7 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 ## Phase 0 — Spike / GO-NO-GO `[senior]`
 
 ### S1 — Capacitor scaffold, run existing UI on device
+
 - **Files:** `ui/capacitor.config.ts`, `ui/package.json` (deps), generated `ui/ios/`,
   `ui/android/` (gitignore build artifacts, commit native projects).
 - **Scope:** add `@capacitor/core` `@capacitor/cli` `@capacitor/ios` `@capacitor/android`;
@@ -56,6 +57,7 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
   still work.
 
 ### S2 — Native WebView spike (the GO/NO-GO) `[senior]`
+
 - **Files:** a throwaway, gitignored test screen.
 - **Scope:** install `@capacitor/inappbrowser`; bump Android `minSdkVersion` to 26
   (`android/variables.gradle`); call `openInWebView` on a site known to send
@@ -70,17 +72,20 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 ## Phase 1 — M1: Capacitor shell `[mix]`
 
 ### M1.1 — Config, icons, splash, status bar `[gemini-ready]`
+
 - **Files:** `ui/capacitor.config.ts`, `@capacitor/splash-screen` + `@capacitor/status-bar`
   setup, app icon / splash assets, `ui/package.json`.
 - **Acceptance:** branded icon + splash on both platforms; status bar styled to the
   indigo token theme; no white flash on launch.
 
 ### M1.2 — Dev live-reload + build scripts `[gemini-ready]`
+
 - **Files:** `ui/capacitor.config.ts` (server.url for dev), `ui/package.json` scripts
   (`cap:sync`, `cap:ios`, `cap:android`), `docs/` note.
 - **Acceptance:** documented one-command dev loop; `cap sync` after `vite build` works.
 
 ### M1.3 — Safe-area + mobile layout pass `[gemini-ready]`
+
 - **Files:** `ui/src/**` layout/CSS using safe-area-inset; the stumble view goes
   full-bleed.
 - **Acceptance:** no content under notch / home indicator; toolbar reachable one-handed.
@@ -90,12 +95,14 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 ## Phase 2 — M2: Browse inside the app `[mix]`
 
 ### M2.1 — `useBrowse` hook wrapping inappbrowser `[gemini-ready, depends: S2]`
+
 - **Files:** `ui/src/hooks/useBrowse.ts`, test.
 - **Scope:** `open(url, mode)` where mode = `sheet` (Custom Tab / SFSafariVC) or
   `webview` (full-screen). Handle close + back events; storage isolation default.
 - **Acceptance:** hook test (mock the plugin) for open/close; sheet vs webview path.
 
 ### M2.2 — Wire browse into `StumbleArea` for non-article types `[senior, depends: M2.1]`
+
 - **Files:** `ui/src/components/StumbleArea.tsx`, the existing `PreviewCard`.
 - **Scope:** on `interactive`/`image`/non-embeddable `video`, the preview card's
   "Open the site" triggers `useBrowse` (native), replacing the broken-iframe path on
@@ -108,6 +115,7 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 ## Phase 3 — M3: Swipe-native discovery `[mix]`
 
 ### M3.1 — Gesture layer over the stumble view `[senior, depends: M1.3]`
+
 - **Files:** `ui/src/components/StumbleArea.tsx`, possibly a `useSwipe` helper;
   `useStumble.ts` wiring; tests.
 - **Scope:** swipe **up** = next stumble (reuse `useStumble` next); swipe **down** =
@@ -117,11 +125,13 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
   test asserts gesture → next handler.
 
 ### M3.2 — Haptics + transition polish `[gemini-ready, depends: M3.1]`
+
 - **Files:** `@capacitor/haptics` calls, transition tuning.
 - **Acceptance:** light haptic on a committed swipe (native only); smooth card
   transition; no jank.
 
 ### M3.3 — (Optional) swipe-rate gestures `[gemini-ready, depends: M3.1]`
+
 - **Scope:** swipe left = dislike, right = like, feeding the existing
   `discoveryService` prefs. Keep it optional/secondary to up/down navigation.
 - **Acceptance:** a horizontal swipe updates prefs same as the rating buttons.
@@ -135,6 +145,7 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 > This is not optional.
 
 ### M4.1 — Automated asset classification `[senior]`
+
 - **Files:** `app/src/services/safetyService.ts`, hook into `assetGate.classifyAsset` /
   ingest path; tests.
 - **Scope:** heuristics (domain blocklists, dead-link/paywall detection) + an LLM
@@ -144,6 +155,7 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
   pass/flag.
 
 ### M4.2 — Report + block `[gemini-ready, depends: M4.1]`
+
 - **Files:** `app/src/controllers/reportController.ts`, a `reports` / `blocked_urls`
   table, `discoveryService` filter; `ui/` report button + per-user block; tests.
 - **Scope:** user can report or block the current asset; reported assets are
@@ -156,15 +168,18 @@ SFSafariViewController sheet). That's a real browser instance, not an embedded f
 ## Phase 5 — M5: Store readiness `[senior]`
 
 ### M5.1 — Store assets + metadata `[gemini-ready]`
+
 App icon set, screenshots, descriptions, age rating questionnaire inputs.
 
 ### M5.2 — Privacy + moderation compliance `[senior]`
+
 - Privacy policy + data-collection disclosures (App Privacy / Data Safety forms).
 - Public **content-moderation policy** doc (`docs/`), referencing M4 (review will ask).
 - **Account deletion** flow (required if you keep OAuth accounts).
 - **Acceptance:** all store forms answerable from real app behaviour; deletion works.
 
 ### M5.3 — Beta channels `[senior]`
+
 TestFlight (iOS) + Play internal testing wired; a real install on a real device.
 
 ---
@@ -179,10 +194,12 @@ M3.1 → M3.2 → M3.3 (swipe)
 M4.1 → M4.2        (safety — before any public/store release)
 M5.*               (store)
 ```
+
 M3 (swipe) and M2 (browse) can overlap after M1. **M4 must land before M5 / any public
 TestFlight-wide or store submission.**
 
 ## Conventions (from CLAUDE.md)
+
 - Issue-first, atomic, file-allowlisted; `gemini-ready` issues use the
   `gemini-task.md` template with "do not merge". Watch junior pitfalls (stale branches,
   missing registration, mixed PRs).
@@ -192,11 +209,15 @@ TestFlight-wide or store submission.**
 - Commit the generated `ios/`/`android/` native projects; gitignore their build output.
 
 ## Risks
+
 - **Store review:** apps that are thin website wrappers and apps surfacing unmoderated
   third-party content get extra scrutiny — M4 + a clear moderation policy is the
-  mitigation. Lead the store listing with the *discovery + reader/explainer* value, not
+  mitigation. Lead the store listing with the _discovery + reader/explainer_ value, not
   "a browser for random sites".
 - **WebView spike (S2) is the keystone** — if native WebView can't reliably render
   un-iframable sites on device, the browse feature needs rethinking before anything is
   built on it. That's why it's the gate.
+
+```
+
 ```
