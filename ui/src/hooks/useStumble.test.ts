@@ -39,7 +39,6 @@ describe("useStumble", () => {
 
   const makeFetchMock = () => {
     let n = 0;
-
     return vi.fn(
       (_url: string): Promise<Response> =>
         Promise.resolve({
