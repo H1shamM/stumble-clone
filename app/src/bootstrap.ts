@@ -411,6 +411,21 @@ export const DEFAULT_SEED_ASSETS: SeedAsset[] = [
   { id: "ic10", url: "https://yesterweb.org/", title: "The Yesterweb", description: "A community reclaiming a more human internet.", source: "Yesterweb", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
   { id: "ic11", url: "https://libraryofbabel.info/", title: "The Library of Babel", description: "Every possible page of text that ever could be written.", source: "Library of Babel", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
   { id: "ic12", url: "https://neal.fun/internet-artifacts/", title: "Internet Artifacts", description: "A playable museum of the web, from 1977 to today.", source: "neal.fun", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+
+  // === Curated expansion (#268) — append-only; all URLs verified to resolve/embed 2026-06-13 ===
+  // Videos (type:video, direct /embed/ URLs)
+  { id: "v5", url: "https://www.youtube.com/embed/s86-Z-CbaHA", title: "The Banach–Tarski Paradox", description: "Vsauce on cutting a ball into pieces and reassembling two identical balls.", source: "Vsauce", category: "science", rating: 0, type: "video", channel: "Videos" },
+  { id: "v6", url: "https://www.youtube.com/embed/aircAruvnKk", title: "But what is a neural network?", description: "3Blue1Brown's beautifully visual introduction to deep learning.", source: "3Blue1Brown", category: "tech", rating: 0, type: "video", channel: "Videos" },
+  { id: "v7", url: "https://www.youtube.com/embed/TRL7o2kPqw0", title: "The Most Radioactive Places on Earth", description: "Veritasium travels the globe with a Geiger counter.", source: "Veritasium", category: "science", rating: 0, type: "video", channel: "Videos" },
+  { id: "v8", url: "https://www.youtube.com/embed/GO5FwsblpT8", title: "Pale Blue Dot", description: "Carl Sagan's reflection on the one home we've ever known.", source: "Carl Sagan", category: "science", rating: 0, type: "video", channel: "Videos" },
+  // Indie & Classic Web (homepages render as preview cards, #172)
+  { id: "ic13", url: "https://jspaint.app/", title: "JS Paint", description: "A pixel-perfect remake of MS Paint, right in the browser.", source: "JS Paint", category: "tech", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+  { id: "ic14", url: "https://www.spacejam.com/1996/", title: "Space Jam (1996)", description: "The original Space Jam website, preserved exactly as it was.", source: "Space Jam", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+  { id: "ic15", url: "https://zombo.com/", title: "Zombo.com", description: "The only limit is yourself. A monument to the early web.", source: "Zombo", category: "random", rating: 0, type: "interactive", channel: "Indie & Classic Web" },
+  // Science & Space (article = deep reader-extractable permalink; image/interactive render as cards)
+  { id: "sci1", url: "https://hubblesite.org/", title: "HubbleSite", description: "The official gallery of Hubble Space Telescope imagery.", source: "HubbleSite", category: "science", rating: 0, type: "image", channel: "Science & Space" },
+  { id: "sci2", url: "https://www.quantamagazine.org/how-the-physics-of-nothing-underlies-everything-20220809/", title: "How the Physics of Nothing Underlies Everything", description: "A deep, readable feature on the quantum vacuum.", source: "Quanta Magazine", category: "science", rating: 0, type: "article", channel: "Science & Space" },
+  { id: "sci3", url: "https://www.solarsystemscope.com/", title: "Solar System Scope", description: "An interactive 3D model of the solar system and night sky.", source: "Solar System Scope", category: "science", rating: 0, type: "interactive", channel: "Science & Space" },
 ];
 
 export async function ensureDevUser(storage: IStoragePort): Promise<void> {
